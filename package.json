@@ -1,0 +1,25 @@
+{
+  "name": "prednirone",
+  "version": "1.0.0",
+  "description": "Rebuild of Prednidrone, the bot for /r/thritis",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sidorakh/prednirone.git"
+  },
+  "author": "Andrew \"Sidorakh\" Rutherford",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Sidorakh/prednirone/issues"
+  },
+  "homepage": "https://github.com/Sidorakh/prednirone#readme",
+  "dependencies": {
+    "discord.js": "^11.5.0",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4"
+  }
+}
