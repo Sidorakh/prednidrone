@@ -2,6 +2,7 @@
 
 // Basic libraries
 const fs = require('fs');
+const path = require('path');
 const discord = require('discord.js');
 const rp = require('request-promise');
 const shallow = require('./ss.js');
@@ -16,12 +17,17 @@ global.cmd = {};
 global.config = config;     // role list
 let files = fs.readdirSync('./cmd/');
 for (let i=0;i<files.length;i++) {
-    let file = files[i].replace('.js','');
+    let file = files[i];
+    if (path.extname(file).toLowerCase() != '.js') {
+        continue;
+    } else {
+        file = file.replace('.js','');
+    }
     global.cmd[file] = require(`./cmd/${file}`);
     console.log(`${file}.js loaded successfully`);
 }
 
-client.on('guildMemberAdd',(member)=>{
+client.on('guildMemberAdd',async(member)=>{
     let channel = member.guild.channels.find(ch => ch.name == 'general' && ch.type == 'text');
     let welcome_message = `Welcome to the server, <@${member.id}>!\n`
     for (let i=0;i<config.roles.length;i++) {

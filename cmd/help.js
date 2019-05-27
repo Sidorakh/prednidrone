@@ -11,10 +11,10 @@ module.exports.description = {
 }
 module.exports.call = async (client,global,msg,command) => {
     let timestamp = new Date(Date.now());
-    if (command) {
-        command = command.toLowerCase();
-        if (global.commands[command]) {
-            let cmd = global.commands[command].description;
+    if (command[0]) {
+        command = command[0].toLowerCase();
+        if (global.cmd[command]) {
+            let cmd = global.cmd[command].description;
             let f = [];
             if (cmd.parameters) {
                 for (let i=0;i<cmd.parameters.length;i++) {
@@ -42,23 +42,24 @@ module.exports.call = async (client,global,msg,command) => {
             return "";
         }
     } else {
-        let command_list = Object.keys(global.commands);
+        let command_list = Object.keys(global.cmd);
         let f = [];
         for (let i=0;i<command_list.length;i++) {
-            f[i] = {name:`\`${command_list[i]}\``,value:global.commands[command_list[i]].description.description};
+            f[i] = {name:`\`${command_list[i]}\``,value:global.cmd[command_list[i]].description.description};
         }
         let data =  {
+            content:'The available commands are as follows',
             embed:{
                 author:{
-                    name:`Available commands are as follows: `
+                    name:`Prednidrone`
                 },
                 color: 8387666,
                 timestamp: timestamp.toISOString(),
                 fields:f
             }
         }
-        //console.log(JSON.stringify(data,null,4));
-        msg.author.send(data);
+        console.log(JSON.stringify(data,null,4));
+        await msg.author.send(data);
         return "";
     }
 }
