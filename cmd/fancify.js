@@ -20,12 +20,13 @@ module.exports.description = {
 
 module.exports.call = async(client,global,msg,args)=>{
     let type = args.shift().toLowerCase();
+    console.log(msg.content);
     if (lut[type] != undefined) {
         let new_msg = "";
         args.join(' ').split('').forEach(c=>{
             let lookup = lut[type];
             if (upper.indexOf(c) != -1) {
-                new_msg += lookup[0][lower.indexOf(c)];
+                new_msg += lookup[0][upper.indexOf(c)];
             } else if (lower.indexOf(c) != -1) {
                 new_msg += lookup[1][lower.indexOf(c)];
             } else {
