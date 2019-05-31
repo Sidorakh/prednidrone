@@ -1,7 +1,3 @@
-const lut = require('./fancify.json');
-const upper = lut.alphabet[0];
-const lower = lut.alphabet[1];
-
 module.exports.description = {
     name: "lifetime",
     description:"Displays the time a member joined the server",
@@ -15,7 +11,6 @@ module.exports.description = {
 }
 
 module.exports.call = async(client,global,msg,args)=>{
-    let member;
     if (msg.guild == undefined) {
         return `You can only use \`!lifetime\` in a server`;
     }
