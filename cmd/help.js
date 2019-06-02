@@ -38,7 +38,7 @@ module.exports.call = async (client,global,msg,command) => {
             msg.author.send(data);
             return "";
         } else {
-            msg.author.send(`Command ${command} was not found. Type \`!help\` for a lsit of commands`);
+            msg.author.send(`Command ${command} was not found. Type \`!help\` for a list of commands`);
             return "";
         }
     } else {
