@@ -28,6 +28,8 @@ const server = net.createServer(socket=>{
         }
     });
     socket.on('error', (e) => {
+        delete shallow_clients[socket.uid];
+        socket.destroy();
         console.error(e);
     });
     socket.on('end', function() {
@@ -70,7 +72,7 @@ module.exports.buzz = (msg) => {
     }
 
     let payload=JSON.stringify({type:"buzz",amt:amt});
-    for (const c of shallow_clients) {
-        c.write(payload);
+    for (const c in shallow_clients) {
+        shallow_clients[c].write(payload);
     }
 }
