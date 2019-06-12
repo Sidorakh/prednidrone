@@ -26,7 +26,9 @@ for (let i=0;i<files.length;i++) {
     global.cmd[file] = require(`./cmd/${file}`);
     console.log(`${file}.js loaded successfully`);
 }
-
+client.on('ready',()=>{
+    global.guild = client.guilds.first();
+});
 client.on('guildMemberAdd',async(member)=>{
     let channel = member.guild.channels.find(ch => ch.name == 'general' && ch.type == 'text');
     let welcome_message = `Welcome to the server, <@${member.id}>!\n`
