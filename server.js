@@ -6,6 +6,7 @@ const path = require('path');
 const discord = require('discord.js');
 const rp = require('request-promise');
 const shallow = require('./ss.js');
+const audio = require('./audio.js')
 const config = require('./config.json');
 const client = new discord.Client();
 console.log('Packages and Config loaded');
@@ -49,7 +50,11 @@ client.on('message',async(msg)=>{
     let [cmd,...args] = str.split(' ');
     cmd = cmd.toLowerCase();
     if (global.cmd[cmd] == undefined) {
-        return;
+        if (cmd == 'join') {
+            audio.join(msg);
+        } else {
+            return;
+        }
     } else {
         let result = await global.cmd[cmd].call(client,global,msg,args);
         if (result != null) {
