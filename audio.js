@@ -17,6 +17,7 @@ module.exports.play = async (client, global, msg, args) => {
             return "You must be in a voice channel to do that!";
         }
     } catch(e) {
+        console.error(e);
         return "An error occured when trying to join the voice channel";
     }
     let info;
