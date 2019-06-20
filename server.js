@@ -50,10 +50,16 @@ client.on('message',async(msg)=>{
     let [cmd,...args] = str.split(' ');
     cmd = cmd.toLowerCase();
     if (global.cmd[cmd] == undefined) {
-        if (cmd == 'join') {
-            audio.join(msg);
-        } else {
-            return;
+        switch (cmd) {
+            case 'play':
+            case 'disconnect':
+            case 'skip':
+            case 'volume':
+                    msg.channel.send(await audio[cmd](client,global,msg,args));
+            break;
+            default:
+                return;
+            break;
         }
     } else {
         let result = await global.cmd[cmd].call(client,global,msg,args);
