@@ -60,6 +60,11 @@ module.exports.volume = async (client,global,msg,args) => {
     return `Volume set to ${volume}%!`;
 }
 
+module.exports.skip = async (client,global,msg,args) => {
+    dispatch.end();
+    return `Skipped successfully`;
+}
+
 const process_queue = async () => {
     if (queue.length === 0) {
         module.exports.disconnect();
