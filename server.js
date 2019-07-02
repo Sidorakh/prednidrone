@@ -29,6 +29,7 @@ for (let i=0;i<files.length;i++) {
 }
 client.on('ready',()=>{
     global.guild = client.guilds.first();
+    global.cmd.remindme.init(global.guild);
 });
 client.on('guildMemberAdd',async(member)=>{
     let channel = member.guild.channels.find(ch => ch.name == 'general' && ch.type == 'text');
