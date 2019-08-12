@@ -1,4 +1,4 @@
-// Main file 
+// Main file
 
 // Basic libraries
 const fs = require('fs');
@@ -32,7 +32,7 @@ client.on('ready',()=>{
 });
 client.on('guildMemberAdd',async(member)=>{
     let channel = member.guild.channels.find(ch => ch.name == 'general' && ch.type == 'text');
-    let welcome_message = `Welcome to the server, <@${member.id}>!\n`
+    let welcome_message = `Welcome to the joint point! The point of non functional joint. \n Hey there, <@${member.id}>!\n`
     for (let i=0;i<config.roles.length;i++) {
         welcome_message += `${i+1}. ${config.roles[i]}\n`;
     }
