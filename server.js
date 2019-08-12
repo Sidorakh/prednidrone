@@ -56,7 +56,7 @@ client.on('message',async(msg)=>{
     let str = msg.content.substr(1);
     let [cmd,...args] = str.split(' ');
     cmd = cmd.toLowerCase();
-    if (global.cmd[cmd] == undefined) {
+    if (global.cmd[cmd] == undefined || global.cmd[cmd].call == undefined) {
         switch (cmd) {
             case 'play':
             case 'disconnect':
