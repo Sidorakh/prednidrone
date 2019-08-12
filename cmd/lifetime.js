@@ -1,10 +1,10 @@
 module.exports.description = {
     name: "lifetime",
     description:"Displays the time a member joined the server",
-    usage:"`!lifetime [Member]`",
+    usage:"`!lifetime [member]`",
     parameters: [
         {
-            name:"user",
+            name:"member",
             description:"Member (or ID) to check - if blank, checks the message sender"
         }
     ]
