@@ -1,4 +1,4 @@
-// Main file 
+// Main file
 
 // Basic libraries
 const fs = require('fs');
@@ -16,6 +16,7 @@ console.log('Packages and Config loaded');
 let global = {};
 global.cmd = {};
 global.config = config;     // role list
+
 let files = fs.readdirSync('./cmd/');
 for (let i=0;i<files.length;i++) {
     let file = files[i];
@@ -31,16 +32,22 @@ client.on('ready',()=>{
     global.guild = client.guilds.first();
     global.cmd.remindme.init(global.guild);
 });
-client.on('guildMemberAdd',async(member)=>{
+
+const welcome_member = async (member)=>{
     let channel = member.guild.channels.find(ch => ch.name == 'general' && ch.type == 'text');
-    let welcome_message = `Welcome to the server, <@${member.id}>!\n`
+    let welcome_message = `Hey there, <@${member.id}>! Welcome to the joint point, the point of non functional joint!\n`
+    welcome_message += `Select a role by typing \`!role number\`.\n`;
     for (let i=0;i<config.roles.length;i++) {
         welcome_message += `${i+1}. ${config.roles[i]}\n`;
     }
-    welcome_message += `Select a role by typing \`!role number\`.\nFor example  typing \`!role 1\` would give you the Osteoarthritis role`;
+    welcome_message += "\nFor example  typing \`!role 1\` would give you the Osteoarthritis role";
     channel.send(welcome_message);
     let lemur = await member.guild.fetchMember('335117187411083275');
     lemur.send(`${member.displayName} has joined ${member.guild.name}`);
+}
+
+client.on('guildMemberAdd',async(member)=>{
+    welcome_member(member);
 });
 client.on('error',console.error);
 client.on('message',async(msg)=>{
@@ -50,7 +57,7 @@ client.on('message',async(msg)=>{
     let str = msg.content.substr(1);
     let [cmd,...args] = str.split(' ');
     cmd = cmd.toLowerCase();
-    if (global.cmd[cmd] == undefined) {
+    if (global.cmd[cmd] == undefined || global.cmd[cmd].call == undefined) {
         switch (cmd) {
             case 'play':
             case 'disconnect':

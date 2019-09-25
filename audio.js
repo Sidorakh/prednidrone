@@ -55,7 +55,7 @@ module.exports.volume = async (client,global,msg,args) => {
     if (isNaN(v) || (v < 0 || v > 100)) return 'Invalid value for volume!';
 
     volume = v;
-    if (dispatch) this.dispatch.setVolume(volume * 0.01);
+    if (dispatch) dispatch.setVolume(volume * 0.01);
 
     return `Volume set to ${volume}%!`;
 }
