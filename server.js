@@ -53,6 +53,7 @@ client.on('error',console.error);
 client.on('message',async(msg)=>{
     if (msg.content[0] != config.prefix) {
         shallow.buzz(msg.content);
+        return;
     }
     let str = msg.content.substr(1);
     let [cmd,...args] = str.split(' ');
