@@ -10,8 +10,11 @@ const audio = require('./audio.js')
 const config = require('./config.json');
 const client = new discord.Client();
 const express = require('express');
+const body_parser = require('body-parser');
 const app = express();
-
+app.use(body_parser.json());
+app.use(body_parser.urlencoded({extended:false}));
+app.use(express.bodyParser);
 let invite_map = {};
 if (fs.existsSync('./invites.json')) {
     invite_map = JSON.parse(fs.readFileSync('./invites.json'));
