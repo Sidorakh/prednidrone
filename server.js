@@ -14,7 +14,7 @@ const body_parser = require('body-parser');
 const app = express();
 app.use(body_parser.json());
 app.use(body_parser.urlencoded({extended:false}));
-app.use(express.bodyParser);
+
 let invite_map = {};
 if (fs.existsSync('./invites.json')) {
     invite_map = JSON.parse(fs.readFileSync('./invites.json'));
@@ -74,7 +74,7 @@ for (let i=0;i<files.length;i++) {
 }
 client.on('ready',()=>{
     global.guild = client.guilds.first();
-    global.cmd.remindme.init(global.guild);
+    //global.cmd.remindme.init(global.guild);
 });
 
 const welcome_member = async (member)=>{
@@ -91,7 +91,23 @@ const welcome_member = async (member)=>{
 }
 
 client.on('guildMemberAdd',async(member)=>{
-    welcome_member(member);
+    var guild = client.guilds.array()[0];
+    guild_invites = await guild.fetchInvites();
+    my_invite = (guild_invites.find(invite => invite.maxUses == 2 && invite.uses == 1));
+    var no_invite = true;
+    if (my_invite != null) {
+        if (invite_map[my_invite.code] != undefined) {
+            console.log('This is from one my invite links!')
+            my_invite.delete();
+            invite_map[my_invite.code] = undefined;
+            no_invite = false;
+        }
+    }
+    if (no_invite) {
+        console.log('A regular invite');
+        welcome_member(member);
+    }
+
 });
 client.on('error',console.error);
 client.on('message',async(msg)=>{
