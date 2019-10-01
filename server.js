@@ -9,7 +9,47 @@ const shallow = require('./ss.js');
 const audio = require('./audio.js')
 const config = require('./config.json');
 const client = new discord.Client();
+const express = require('express');
+const app = express();
+
+let invite_map = {};
+if (fs.existsSync('./invites.json')) {
+    invite_map = JSON.parse(fs.readFileSync('./invites.json'));
+}
+
 console.log('Packages and Config loaded');
+
+app.post('/signup', async function(req, res) { 
+    
+    var guild = client.guilds.array()[0];
+    var channel = guild.channels.find(ch =>ch.name === 'announcements');
+    var invite = await channel.createInvite({maxUses:2,maxAge:0,unqiue:true}, "Project Development Invite");
+
+    var mod_channel = guild.channels.find(ch =>ch.name === 'mods-important');
+    var fancy_message = {
+        "embed": {
+            "title": req.body.project_name,
+            "description": `Type: ${req.body.project_type}\n${req.body.project_description}\n\n\nEmail them at \`${req.body.author_email}\` and include the following invite link if accepted: <https://discord.gg/${invite.code}>`,
+            "color": 14492194,
+            "timestamp": Date.now(),
+            "footer": {
+                "icon_url": "https://cdn.discordapp.com/embed/avatars/0.png",
+                "text": "This is an automatic message sent from Prednidrone with ❤"
+            },
+            "author": {
+                "name": req.body.author_name,
+                "icon_url": "https://cdn.discordapp.com/embed/avatars/0.png"
+            }
+        }
+    }
+    invite_map[invite.code] = 0;
+    fs.writeFile("./invites.json",JSON.stringify(invite_map),()=>{console.log('File written')});
+    mod_channel.send(fancy_message);
+    //res.contentType('text/plain').send(`Your request has been received. The moderation team will contact you on ${req.body.author_email} soon`);
+    res.redirect('https://sidorakh.xyz/thritis/application-received.html');
+});
+
+console.log('Express server set up');
 
 // Commands
 
