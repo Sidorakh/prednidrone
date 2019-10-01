@@ -49,6 +49,7 @@ app.post('/signup', async function(req, res) {
     res.redirect('https://sidorakh.xyz/thritis/application-received.html');
 });
 
+app.listen(3000);
 console.log('Express server set up');
 
 // Commands
