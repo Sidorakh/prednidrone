@@ -62,14 +62,18 @@ export class ServerHandler {
         app.use(passport.session());
         app.use('/assets',express.static('./assets'));
         app.set('view engine', 'ejs');
+        // GNU Terry Pratchett
+        app.use((req: express.Request,res: express.Response,next: express.NextFunction)=>{
+            res.set('X-Clacks-Overhead', 'GNU Terry Pratchett');
+            next();
+        });
 
 
 
 
 
-
-        // Setup
-        app.get('/',(req,res,next)=>{
+        // Roles
+        app.use((req: express.Request,res: express.Response, next: express.NextFunction)=>{
             if (req.user) {
                 //@ts-ignore
                 const user_roles: string = list_roles(req.user.id);
@@ -83,10 +87,11 @@ export class ServerHandler {
                 if (user_roles.indexOf('Admins') > 0) {
                     role_id = 3;
                 }
-                
+                //@ts-ignore
+                req.user.role_id = role_id
             }   
             next();
-        })
+        });
 
         // Unauthroized allowed
 
