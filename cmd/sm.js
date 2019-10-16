@@ -35,7 +35,7 @@ module.exports.call = async(client,global,msg,args) => {
         }
         global.muted[msg.author.id].push(channel);
         global.save_data('./muted.json',global.muted);
-        let mod_channel = msg.guild.channels.find(ch=>ch.name=='mods-important' & ch.type=='text');
+        let mod_channel = msg.guild.channels.find(ch=>ch.name=='mod-important' & ch.type=='text');
         mod_channel.send(`<@${msg.author.id}> muted <#${args[0].replace(/<|#|>/g,'')}> ${(reason != '' ? 'due to ' + reason : '')}`);
     }
     return null;

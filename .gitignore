@@ -64,3 +64,4 @@ typings/
 config.json
 accounts.json
 invites.json
+muted.json
