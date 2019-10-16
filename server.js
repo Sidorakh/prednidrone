@@ -60,7 +60,16 @@ console.log('Express server set up');
 let global = {};
 global.cmd = {};
 global.config = config;     // role list
-
+global.muted = {};
+global.save_data = (fname,data)=>{
+    fs.writeFileSync(fname,JSON.stringify(data,null,4));
+}
+global.load_data = (fname)=>{
+    return JSON.parse(fs.readFileSync(fname));
+}
+if (fs.existsSync('./muted.json')) {
+    global.muted = global.load_data('./muted.json');
+}
 let files = fs.readdirSync('./cmd/');
 for (let i=0;i<files.length;i++) {
     let file = files[i];

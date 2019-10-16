@@ -6,7 +6,7 @@ module.exports.description = {
     parameters: [
         {
             name:"channel",
-            description:"What the bot should say"
+            description:"Channel to mute"
         },
         {
             name:"reason",
@@ -31,7 +31,7 @@ module.exports.call = async(client,global,msg,args) => {
             reason = args.slice(1,args.length).join(' ');
         }
         if (global.muted[msg.author.id] == undefined) {
-            global.muted [msg.author.id]= [];
+            global.muted[msg.author.id] = [];
         }
         global.muted[msg.author.id].push(channel);
         global.save_data('./muted.json',global.muted);
