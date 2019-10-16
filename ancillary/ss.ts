@@ -1,5 +1,5 @@
 import * as net from 'net';
-import {DatabaseHelper} from './database-helper';
+import {DatabaseHelper} from '../database-helper';
 const uuid_taken: Object = {};
 export class ShallowsServices {
     shallow_clients = {};

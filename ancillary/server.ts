@@ -9,15 +9,20 @@ import * as pages from './pages';
 
 const active_sessions = {};
 
-const page = (_page: (dbh: DatabaseHelper, req:express.Request, res:express.Response, next:express.NextFunction) => any) => {
-    return (req: express.Request,res:express.Response,next:express.NextFunction)=>{
-        _page(this.dbh,req,res,next);
-    }
-}
+
 
 export class ServerHandler {
+    private dbh: DatabaseHelper;
     private app: express.Application;
-    constructor( list_roles: (id: string)=>string[], port: string) {
+    constructor( list_roles: (id: string)=>Promise<string[]>, port: string, dbh: DatabaseHelper) {
+        
+        // Page handler
+        this.dbh = dbh;
+        const page = (_page: (dbh: DatabaseHelper, req:express.Request, res:express.Response, next:express.NextFunction) => any) => {
+            return (req: express.Request,res:express.Response,next:express.NextFunction)=>{
+                _page(this.dbh,req,res,next);
+            }
+        }
         // Passport
         const auth_strategy = new discord_strategy ({
                 clientID:process.env.CLIENT_ID,
@@ -71,24 +76,56 @@ export class ServerHandler {
 
 
 
+        // passport/login
+        app.get('/login',(req,res)=>{
+            res.redirect(process.env.AUTH_URL);
+        });
+        app.get('/logout',(req,res)=>{
+            if (req.user == undefined) {
+                res.redirect('/login');
+            } else {
+                req.logout();
+                res.redirect('/');
+            }
+        });
+        app.get('/callback', passport.authenticate('discord',{ failureRedirect: '/' }), (req, res) => {
+            res.redirect('/')
+        });
+
 
         // Roles
-        app.use((req: express.Request,res: express.Response, next: express.NextFunction)=>{
+
+        app.use(async (req: express.Request,res: express.Response, next: express.NextFunction)=>{
             if (req.user) {
                 //@ts-ignore
-                const user_roles: string = list_roles(req.user.id);
+                const id = req.user.id;
+                const user_roles: string[] = await list_roles(id);
                 let role_id = 0;
                 if (user_roles.indexOf('Channel Host') > 0) {
                     role_id = 1;
                 }
-                if (user_roles.indexOf('Chat Mod') > 0) {
+                if (user_roles.indexOf('Chat Mods') > 0) {
                     role_id = 2;
                 }
                 if (user_roles.indexOf('Admins') > 0) {
                     role_id = 3;
                 }
+                
                 //@ts-ignore
                 req.user.role_id = role_id
+
+                //@ts-ignore
+                req.user.ss = false;
+
+                const db = dbh.get_db()
+                const stmt = db.prepare('SELECT * FROM ShallowsServices WHERE DiscordID=(?)');
+
+                const result = await dbh.stmt_get(stmt,id);
+                if (result) {
+                    //@ts-ignore
+                    req.user.ss = true;
+                }
+
             }   
             next();
         });
@@ -97,6 +134,7 @@ export class ServerHandler {
 
 
         app.get('/',page(pages.home));
+        
 
         // Authorization required
 

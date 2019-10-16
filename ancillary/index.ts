@@ -10,10 +10,10 @@ export class Services {
     app: ServerHandler;
     list_roles: (id: string) => string;     // function definition
 
-    constructor(dbh: DatabaseHelper, list_roles: (id: string)=>string[], port:string) {
+    constructor(dbh: DatabaseHelper, list_roles: (id: string)=>Promise<string[]>, port:string) {
         this.dbh = dbh;
         this.ss = new ShallowsServices(this.dbh);
-        this.app = new ServerHandler(list_roles, port);
+        this.app = new ServerHandler(list_roles, port, dbh);
     }
 
     public buzz(msg: String) {

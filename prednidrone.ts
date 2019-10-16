@@ -14,27 +14,30 @@ const dbh = new DatabaseHelper(db);
 db.serialize(async ()=>{
     await dbh.run(`
     CREATE TABLE IF NOT EXISTS Spoons (
-        DiscordID PRIMARY KEY INTEGER NOT NULL,
+        DiscordID TEXT NOT NULL PRIMARY KEY,
         Balance INTEGER
     )`);
     await dbh.run(`
     CREATE TABLE IF NOT EXISTS Medicine (
-        DiscordID PRIMARY KEY INTEGER NOT NULL,
+        DiscordID TEXT NOT NULL PRIMARY KEY,
         MedicineList TEXT
     )`);
     await dbh.run(`
     CREATE TABLE IF NOT EXISTS Conditions (
-        DiscordID PRIMARY KEY INTEGER NOT NULL,
+        DiscordID TEXT NOT NULL PRIMARY KEY,
         ConditionList TEXT
     )`);
     await dbh.run(`
     CREATE TABLE IF NOT EXISTS ShallowTerms (
-        TermID PRIMARY KEY INTEGER AUTOINCREMENT,
+        TermID INTEGER AUTO_INCREMENT PRIMARY KEY,
         Term TEXT
+    )`);
+    await dbh.run(`
+    CREATE TABLE IF NOT EXISTS ShallowsServices (
+        DiscordID TEXT NOT NULL PRIMARY KEY
     )`);
     
 });
-
 const client: discord.Client = new discord.Client();
 
 client.on('guildMemberAdd',async(member)=>{
@@ -52,7 +55,25 @@ client.on('guildMemberAdd',async(member)=>{
 });
 
 client.on('message',(msg)=>{
-
+    console.log(msg.content);
 });
 
+const services = new Services(dbh,async (id:string)=>{
+    const guild: discord.Guild = client.guilds.first();
+    const user = await client.fetchUser(id);
+    if (user) {
+        const member = await guild.fetchMember(user);
+        if (member) {
+            const roles = [];
+            const role_array = member.roles.array();
+            for (let i=0;i<role_array.length;i++) {
+                const role = role_array[i];
+                roles.push(role.name);
+            }
+            return roles;
+        }
+    }
+    return [];
+},process.env.PORT);
 
+client.login(process.env.TOKEN);
