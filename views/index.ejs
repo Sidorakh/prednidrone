@@ -1,3 +1,8 @@
 <div>
-    Hello, world! o/
+    <% if (user) {%>
+        <p> Logged in as <%= user.username %>, with role <%= user.role_id %></p>
+        <pre><%=JSON.stringify(user,null,4)%></pre>
+    <% } else { %>
+        <p> <a href="/login">Log in</a> with Discord to get started
+    <% }%>
 </div>

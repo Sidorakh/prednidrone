@@ -191,3 +191,27 @@ label.flex-form-item {
     background-color: #fcfcfc;  
     border: 1px solid #eee;
 }
+
+#signup-msg {
+    display:flex;
+    width:50%;
+    margin:auto;
+}
+.signup-msg {
+    flex: 1;
+    padding:10px;
+}
+.close-button {
+    flex-shrink: 1;
+    padding:10px;
+}
+.spoonbank-details {
+    display:flex;
+}
+.spoonbank-avatar {
+    flex: 1 1 auto;
+    border-radius:50%;
+}
+.spoonbank-account {
+    flex: 8 0 auto;
+}

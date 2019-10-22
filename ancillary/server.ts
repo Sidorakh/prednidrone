@@ -1,4 +1,5 @@
 import * as express from 'express';
+import * as discord from 'discord.js';
 import * as body_parser from 'body-parser';
 import { DatabaseHelper } from '../database-helper';
 import * as cookie_parser from 'cookie-parser';
@@ -6,6 +7,8 @@ import * as session from 'express-session';
 import * as passport from 'passport';
 import * as discord_strategy from 'passport-discord';
 import * as pages from './pages';
+import * as cors from 'cors';
+import * as rp from 'request-promise';
 
 const active_sessions = {};
 
@@ -14,15 +17,18 @@ const active_sessions = {};
 export class ServerHandler {
     private dbh: DatabaseHelper;
     private app: express.Application;
-    constructor( list_roles: (id: string)=>Promise<string[]>, port: string, dbh: DatabaseHelper) {
+    constructor( list_roles: (id: string)=>Promise<string[] | Error>, port: string, dbh: DatabaseHelper, get_avatar: (id: string)=>Promise<discord.User | Error>) {
         
         // Page handler
         this.dbh = dbh;
+        const db = dbh.get_db();
         const page = (_page: (dbh: DatabaseHelper, req:express.Request, res:express.Response, next:express.NextFunction) => any) => {
             return (req: express.Request,res:express.Response,next:express.NextFunction)=>{
                 _page(this.dbh,req,res,next);
             }
         }
+        ///@ts-ignore
+        this.dbh.get_avatar = get_avatar;
         // Passport
         const auth_strategy = new discord_strategy ({
                 clientID:process.env.CLIENT_ID,
@@ -67,40 +73,42 @@ export class ServerHandler {
         app.use(passport.session());
         app.use('/assets',express.static('./assets'));
         app.set('view engine', 'ejs');
+
+
+        
+
         // GNU Terry Pratchett
         app.use((req: express.Request,res: express.Response,next: express.NextFunction)=>{
             res.set('X-Clacks-Overhead', 'GNU Terry Pratchett');
             next();
         });
 
-
-
-
-        // passport/login
-        app.get('/login',(req,res)=>{
-            res.redirect(process.env.AUTH_URL);
-        });
-        app.get('/logout',(req,res)=>{
-            if (req.user == undefined) {
-                res.redirect('/login');
-            } else {
-                req.logout();
-                res.redirect('/');
+        const auth_role = (min_level: Number, redirect_url: string = '/') => {
+            return (req: express.Request,res:express.Response,next:express.NextFunction)=>{
+                //@ts-ignore
+                if (req.user.role_id >= min_level) {
+                    next();
+                } else {
+                    res.redirect(redirect_url);
+                }
             }
-        });
-        app.get('/callback', passport.authenticate('discord',{ failureRedirect: '/' }), (req, res) => {
-            res.redirect('/')
-        });
+        }
 
 
-        // Roles
-
-        app.use(async (req: express.Request,res: express.Response, next: express.NextFunction)=>{
+        const auth = (async (req: express.Request,res: express.Response, next: express.NextFunction)=>{
             if (req.user) {
                 //@ts-ignore
                 const id = req.user.id;
-                const user_roles: string[] = await list_roles(id);
-                let role_id = 0;
+                const user_roles: string[] | Error = await list_roles(id);
+                let role_id = -10
+                
+                if (user_roles instanceof Error) {
+                    console.log('Error on obtaining user roles - maybe they aren\'t uin the Thritis discord server')
+                    role_id = -1;
+
+                    return next();
+                }
+
                 if (user_roles.indexOf('Channel Host') > 0) {
                     role_id = 1;
                 }
@@ -115,20 +123,45 @@ export class ServerHandler {
                 req.user.role_id = role_id
 
                 //@ts-ignore
-                req.user.ss = false;
+                req.user.ss = true;
 
                 const db = dbh.get_db()
                 const stmt = db.prepare('SELECT * FROM ShallowsServices WHERE DiscordID=(?)');
 
                 const result = await dbh.stmt_get(stmt,id);
+                
                 if (result) {
                     //@ts-ignore
                     req.user.ss = true;
+                } else {
+                    //@ts-ignore
+                    req.user.ss = false;
                 }
-
-            }   
+            }
             next();
         });
+
+        app.all('*',auth);
+
+        // passport/login
+        app.get('/login',(req,res)=>{
+            res.redirect(process.env.AUTH_URL);
+        });
+        app.get('/logout',(req,res)=>{
+            if (req.user == undefined) {
+                res.redirect('/login');
+            } else {
+                req.logout();
+                res.redirect('/');
+            }
+        });
+        app.get('/callback', passport.authenticate('discord',{ failureRedirect: '/'}),auth,(req,res)=>{
+            res.redirect('/');
+        });
+
+
+        // Roles
+
 
         // Unauthroized allowed
 
@@ -136,7 +169,104 @@ export class ServerHandler {
         app.get('/',page(pages.home));
         
 
-        // Authorization required
+
+
+        // Require account (Spoonbank)
+        app.all('/sb/*',(req,res,next) => {
+            // @ts-ignore
+            if (req.user && req.user.role_id > -1) {
+                next();
+            } else {
+                res.redirect('/');
+            }
+        });
+
+        app.get('/sb/',page(pages.sb_home));
+        app.get('/sb/signup',page(pages.sb_signup));
+        app.post('/sb/signup',async (req,res)=>{
+            //@ts-ignore
+            const user_id = req.user.id;
+            const signup_check = db.prepare(`SELECT * FROM Spoons WHERE DiscordID = (?)`);
+            const account = await dbh.stmt_get(signup_check,user_id);
+            if (!account) {
+                const signup_stmt = db.prepare(`INSERT INTO Spoons (DiscordID, Balance) VALUES (?, 5000)`);
+                await dbh.stmt_run(signup_stmt,user_id);
+                res.redirect('/sb/?signup=1');
+            } else {
+                res.redirect('/sb/')
+            }
+        });
+
+        // Hosts+
+        app.all('/hosts/*',(req,res,next) => {
+            // @ts-ignore
+            if (req.user && req.user.role_id > 0) {
+                next();
+            } else {
+                res.redirect('/');
+            }
+        });
+
+
+        // Mods+
+
+        // Admins+
+
+        //Shallow's Services
+        app.get('/ss/*',(req,res,next)=>{
+            // @ts-ignore
+            if (req.user && req.user.ss) {
+                return next();
+            }
+            return res.redirect('/');
+        });
+
+        app.get('/ss/',(req,res,next)=>{
+            page(pages.ss)(req,res,next);
+        });
+
+        app.delete('/ss/keyword/delete/:keyword',async (req,res)=>{
+            if (parseInt(req.params.keyword) != NaN) {
+                const stmt = db.prepare(`DELETE FROM ShallowTerms WHERE TermID = (?)`);
+                await dbh.stmt_run(stmt,req.params.keyword);
+            }
+            res.send(JSON.stringify({
+                status:'success',
+                msg:`deleted keyword ID ${req.params.keyword}`
+            }));
+        });
+
+        app.post('/ss/keyword/add',async (req,res,next)=>{
+            const keyword = req.body.keyword.toLowerCase();
+            const stmt = db.prepare(`SELECT * FROM ShallowTerms WHERE Term=(?)`);
+            
+            const result = await dbh.stmt_all(stmt,keyword);
+            let response = "";
+            console.log(`Length: ${result.length}`);
+            console.log(req.headers.host);
+            if (result.length == 0) {
+                const stmt_insert = db.prepare(`INSERT INTO ShallowTerms (Term) VALUES (?)`);
+                await dbh.stmt_run(stmt_insert,keyword);
+                stmt_insert.finalize();
+                
+                const stmt_term = db.prepare(`SELECT * FROM ShallowTerms WHERE Term=(?)`);
+            
+                const new_result = await dbh.stmt_get(stmt_term,keyword)
+            
+                console.log(result);
+                stmt.finalize();
+                response = (JSON.stringify({
+                    status:"success",
+                    id: new_result.TermID,
+                    term: new_result.Term
+                }));
+            } else {
+                response = (JSON.stringify({
+                    status:"failure"
+                }));
+            }
+            res.send(response);
+        });
 
 
         app.listen(port);

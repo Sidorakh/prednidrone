@@ -47,7 +47,7 @@ export class ShallowsServices {
         });
     }
     public async update() {
-        const term_lookup = await this.dbh.all('SELECT Term FROM ShallowTerm');
+        const term_lookup = await this.dbh.all('SELECT * FROM ShallowTerms');
         for (const term in term_lookup) {
             this.terms.push(term_lookup[term].Term);
         }
