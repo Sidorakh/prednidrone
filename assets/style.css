@@ -215,3 +215,71 @@ label.flex-form-item {
 .spoonbank-account {
     flex: 8 0 auto;
 }
+
+#actions-container {
+    display:flex;
+}
+
+.user-list-container {
+    flex:1 0 auto;
+}
+.transaction-history {
+    flex:1 0 auto;
+}
+
+#page-container {
+    padding: 0 100px;
+}
+.nav {
+    list-style: none;
+}
+.nav > li {
+    border-left: 1px solid #eee;
+    border-right: 1px solid #eee;
+    padding:10px;
+}
+
+.avatar {
+    font-size:64px;
+    height:64px;
+    text-align: middle;
+    border-radius:50%;
+}
+
+.material-icons.md-18 { font-size: 18px; }
+.material-icons.md-24 { font-size: 24px; }
+.material-icons.md-36 { font-size: 36px; }
+.material-icons.md-48 { font-size: 48px; }
+.material-icons.md-64 { font-size: 64px; }
+
+.width-100 {
+    width:100%;
+}
+
+.hidden {
+    display:none;
+}
+
+.flat-btn {
+    border: 0;
+    background: none;
+    box-shadow: none;
+    border-radius: 0px;
+}
+.inline-form {
+    display:inline;
+}
+.inline-code {
+    background-color:#eee;
+    border-radius:0.5em;
+    font-family:monospace;
+    padding:2px;
+    color:#c22;
+}
+.width-50 {
+    width:50%;
+}
+.avatar-bio {
+    width:64px;
+    border-radius:50%;
+}

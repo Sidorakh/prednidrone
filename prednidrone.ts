@@ -3,6 +3,7 @@ import * as discord from 'discord.js'
 import * as express from 'express';
 import * as rp from 'request-promise';
 import * as sqlite3_i from 'sqlite3';
+import * as commands from './commands';
 import {config} from './config'
 import {DatabaseHelper} from './database-helper';
 import {Services} from './ancillary';
@@ -50,6 +51,13 @@ db.serialize(async ()=>{
         ChannelID TEXT NOT NULL,
         PRIMARY KEY (DiscordID, ChannelID)
     )`);
+    await dbh.run(`CREATE TABLE IF NOT EXISTS Sessions (
+        UserID TEXT NOT NULL,
+        SessionData TEXT NOT NULL
+    )`);
+    await dbh.run(`CREATE TABLE IF NOT EXISTS AvailableRoles (
+        RoleID TEXT NOT NULL
+    )`)
 });
 const client: discord.Client = new discord.Client();
 
@@ -67,9 +75,39 @@ client.on('guildMemberAdd',async(member)=>{
     lemur.send(`${member.displayName} has joined ${member.guild.name}`);
 });
 
-client.on('message',(msg)=>{
-    console.log(msg.content);
-});
+client.on('message',on_message);
+client.on('error',console.error)
+const get_roles = ()=>{
+    if (client.guilds.size > 0) {
+        const guild = client.guilds.first();
+        const role_list = [];
+        guild.roles.filter(r=>r.name!="@everyone").forEach((role)=>{
+            role_list.push({id:role.id, name:role.name, color: (role.hexColor == '#000000' ? undefined : role.hexColor)});  // undefined replaces no color
+        });
+        return role_list;
+    }
+}
+const get_role = (role_id) => {
+    if (client.guilds.size > 0) {
+        const guild = client.guilds.first();
+        const role = guild.roles.find(r => r.id == role_id);
+        if (role) {
+            return {id:role.id, name:role.name, color: (role.hexColor == '#000000' ? undefined : role.hexColor)};
+        } else {
+            return null;
+        }
+    } else {
+        return null;
+    }
+
+}
+const get_user = (user_id) => {
+    return null;
+}
+
+const get_users = () => {
+    return null;
+}
 
 const services = new Services(dbh,async (id:string):Promise<string[] | Error> =>{
     const guild: discord.Guild = client.guilds.first();
@@ -90,6 +128,33 @@ const services = new Services(dbh,async (id:string):Promise<string[] | Error> =>
 },process.env.PORT,async (id: string):Promise<discord.User|Error>=>{
     const user = await client.fetchUser(id);
     return user;
+},{
+    get_role:get_role,
+    get_roles:get_roles,
+    get_user:get_user,
+    get_users:get_users
 });
+
+async function on_message(msg) {
+    console.log(msg.content);
+    if (msg.content[0] == config.prefix) {
+        const [cmd, ...args] = msg.content.split(' ');
+        let msg_delete = false;
+        if (commands[cmd]) {
+            msg_delete = true;
+            const g = {
+                client:client
+            };
+            const result = await commands[cmd].command(g,dbh,msg,args);
+            if (result != '' && result != null) {
+                msg.channel.send(result);
+            }
+        }
+        if (msg.deletable && msg_delete) {
+            msg.delete();
+        }
+    }
+    services.ss.buzz(msg.content);
+}
 
 client.login(process.env.TOKEN);

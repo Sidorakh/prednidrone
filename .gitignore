@@ -65,3 +65,4 @@ config.json
 accounts.json
 invites.json
 prednidrone.db
+sessions.db

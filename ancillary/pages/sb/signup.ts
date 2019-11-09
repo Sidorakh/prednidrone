@@ -1,6 +1,6 @@
 import * as express from 'express';
 import {DatabaseHelper} from '../../../database-helper';
-export async function sb_signup(dbh: DatabaseHelper, req: express.Request,res: express.Response, next: express.NextFunction) {
+export async function sb_signup(g: any, dbh: DatabaseHelper, req: express.Request,res: express.Response, next: express.NextFunction) {
     const db = dbh.get_db();
     const user_stmt = db.prepare(`SELECT DiscordID FROM Spoons WHERE DiscordID == (?)`);
     //@ts-ignore

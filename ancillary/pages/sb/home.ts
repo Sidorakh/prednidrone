@@ -1,6 +1,6 @@
 import * as express from 'express';
 import {DatabaseHelper} from '../../../database-helper';
-export async function sb_home(dbh: DatabaseHelper, req: express.Request,res: express.Response, next: express.NextFunction) {
+export async function sb_home(g: any, dbh: DatabaseHelper, req: express.Request,res: express.Response, next: express.NextFunction) {
     const db = dbh.get_db();
     //@ts-ignore
     let id = req.user.id;
