@@ -58,6 +58,9 @@ db.serialize(async ()=>{
     await dbh.run(`CREATE TABLE IF NOT EXISTS AvailableRoles (
         RoleID TEXT NOT NULL
     )`)
+    await dbh.run(`CREATE TABLE IF NOT EXISTS JoinNotifications (
+        DiscordID TEXT NOT NULL
+    )`)
 });
 const client: discord.Client = new discord.Client();
 
@@ -136,9 +139,10 @@ const services = new Services(dbh,async (id:string):Promise<string[] | Error> =>
 });
 
 async function on_message(msg) {
-    console.log(msg.content);
+    //console.log(msg.content);
     if (msg.content[0] == config.prefix) {
-        const [cmd, ...args] = msg.content.split(' ');
+        let [cmd, ...args] = msg.content.split(' ');
+        cmd = cmd.slice(1);
         let msg_delete = false;
         if (commands[cmd]) {
             msg_delete = true;

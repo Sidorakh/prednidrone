@@ -48,7 +48,7 @@ export class ShallowsServices {
         server.listen(8008);
     };
     public buzz(msg: string) {
-        console.log(`SS - ${msg}`);
+        //console.log(`SS - ${msg}`);
         const amt = msg.match(this.regex)
         if (amt) {
             console.log(amt.length);
