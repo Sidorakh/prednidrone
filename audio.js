@@ -24,6 +24,7 @@ module.exports.play = async (client, global, msg, args) => {
     try {
         info = await youtube_info_async(video, ['-q', '--no-warnings', '--force-ipv4']);
     } catch(e) {
+        console.error(e);
         return "An error occured adding the requested item";
     }
 
