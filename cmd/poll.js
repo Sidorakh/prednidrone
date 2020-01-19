@@ -1,11 +1,15 @@
 module.exports.description = {
     name:"poll",
-    description:"Start a poll - pass in the question and options enclosed in double quotes - \"\"",
-    usage: "`!poll \"question\" \"\"`",
+    description:"Start a poll - pass in the question and up to 10 options enclosed in double quotes - \"\"",
+    usage: "`!poll \"question\" \"options\"]`",
     parameters: [
         {
-            name:"",
-            description:""
+            name:"question",
+            description:"The question to ask"
+        },
+        {
+            name:"options",
+            description:"List of options, each option surrounded by double-quotes"
         }
     ]
 }

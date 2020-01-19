@@ -3,13 +3,13 @@ const path = require('path');
 let accounts = JSON.parse(fs.readFileSync('./accounts.json'));
 
 module.exports.description = {
-    name: "lifetime",
-    description:"Displays the time a member joined the server",
-    usage:"`!lifetime [Member]`",
+    name: "spoonbank",
+    description:"Functions related to the spoonbank",
+    usage:"`!spoonbank signup|balance|send|give|help`",
     parameters: [
         {
-            name:"user",
-            description:"Member (or ID) to check - if blank, checks the message sender"
+            name:"signup|balance|send|give|help",
+            description:"Use any one of these options to use the spoonbank. Use `!spoonbank help` to learn more about it"
         }
     ]
 }
