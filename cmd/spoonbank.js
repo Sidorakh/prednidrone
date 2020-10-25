@@ -8,7 +8,7 @@ module.exports.description = {
     usage:"`!spoonbank signup|balance|send|give|help`",
     parameters: [
         {
-            name:"signup|balance|send|give|help",
+            name:"signup|balance|send|help",
             description:"Use any one of these options to use the spoonbank. Use `!spoonbank help` to learn more about it"
         }
     ]
