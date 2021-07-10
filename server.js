@@ -32,8 +32,7 @@ client.once('ready',()=>{
 client.on('interactionCreate',async interaction =>{
     if (!interaction.isCommand()) return;
     let cmd = null;
-    switch (interaction.commandName) {
-        case 'setcommands':
+    if (interaction.commandName == 'setcommands') {
             try {
                 // always allow Sidorakh#8297 in case of fuckup
                 if (interaction.member.user.id != '141365209435471872') {
@@ -47,32 +46,11 @@ client.on('interactionCreate',async interaction =>{
             } catch(e) {
                 await interaction.followUp({ephemeral:true,content:`An error occured: ${e.toString()}`});
             }
-        break;
-        case 'role':
-            cmd = slash.role;
-        break;
-        case 'lifetime':
-            cmd = slash.lifetime;
-        break;
-        case 'say':
-            cmd = slash.say;
-        break;
-        case 'badrheumy':
-            cmd = slash.badrheumy;
-        break;
-        case 'crisis':
-            cmd = slash.crisis;
-        break;
-        case 'update':
-            cmd = slash.update;
-        break;
-        case 'pronoun':
-            cmd = slash.pronoun;
-        break;
+            return;
     }
 
-    if (cmd != null) {
-        cmd.command(interaction,client);
+    if (slash[interaction.commandName] != undefined) {
+        slash[interaction.commandName].command(interaction,client);
     }
 })
 
