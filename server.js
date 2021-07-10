@@ -1,154 +1,95 @@
-// Main file
+require('dotenv').config();
 
-// Basic libraries
-const fs = require('fs');
-const path = require('path');
 const discord = require('discord.js');
-const rp = require('request-promise');
-const shallow = require('./ss.js');
-const audio = require('./audio.js')
-const config = require('./config.json');
-const client = new discord.Client();
-const express = require('express');
-const body_parser = require('body-parser');
-const app = express();
-app.use(body_parser.json());
-app.use(body_parser.urlencoded({extended:false}));
+const {default: axios} = require('axios');
+const {default: firebase} = require('firebase');
 
-let invite_map = {};
-if (fs.existsSync('./invites.json')) {
-    invite_map = JSON.parse(fs.readFileSync('./invites.json'));
-}
+const {Intents} = discord;
 
-console.log('Packages and Config loaded');
+const {setup} = require('./command-setup');
+const slash = require('./slash');
 
-app.post('/signup', async function(req, res) { 
-    
-    var guild = client.guilds.array()[0];
-    var channel = guild.channels.find(ch =>ch.name === 'announcements');
-    var invite = await channel.createInvite({maxUses:2,maxAge:0,unqiue:true}, "Project Development Invite");
+firebase.initializeApp(require('./firebase-credentials.json'));
+firebase.auth().signInWithEmailAndPassword(process.env.FIREBASE_EMAIL,process.env.FIREBASE_PASSWORD);
 
-    var mod_channel = guild.channels.find(ch =>ch.name === 'mods-important');
-    var fancy_message = {
-        "embed": {
-            "title": req.body.project_name,
-            "description": `Type: ${req.body.project_type}\n${req.body.project_description}\n\n\nEmail them at \`${req.body.author_email}\` and include the following invite link if accepted: <https://discord.gg/${invite.code}>`,
-            "color": 14492194,
-            "timestamp": Date.now(),
-            "footer": {
-                "icon_url": "https://cdn.discordapp.com/embed/avatars/0.png",
-                "text": "This is an automatic message sent from Prednidrone with ❤"
-            },
-            "author": {
-                "name": req.body.author_name,
-                "icon_url": "https://cdn.discordapp.com/embed/avatars/0.png"
+const client = new discord.Client({
+    intents: [
+        Intents.FLAGS.GUILDS,
+        Intents.FLAGS.GUILD_BANS,
+        Intents.FLAGS.GUILD_MEMBERS,
+        Intents.FLAGS.DIRECT_MESSAGES,
+        Intents.FLAGS.GUILD_MESSAGES
+    ],
+    partials: ['MESSAGE','CHANNEL']
+});
+
+client.login(process.env.TOKEN);
+
+client.once('ready',()=>{
+    console.log('Ret-2-Go!');
+});
+
+client.on('interactionCreate',async interaction =>{
+    if (!interaction.isCommand()) return;
+    let cmd = null;
+    switch (interaction.commandName) {
+        case 'setcommands':
+            try {
+                // always allow Sidorakh#8297 in case of fuckup
+                if (interaction.member.user.id != '141365209435471872') {
+                    const {admin_role} = (await firebase.firestore().collection(process.env.COLLECTION).doc('settings').get()).data();
+                    const member = await interaction.guild.members.fetch(interaction.member.user.id);
+                    if (!member.roles.cache.find(role=>role.id==admin_role)) return interaction.reply({ephemeral:true,content: 'You\'re not allowed to do that!'});
+                }
+                await interaction.defer({ephemeral:true});
+                await setup(interaction.guild);
+                await interaction.editReply({ephemeral:true,content:'Commands successfully updated!',});
+            } catch(e) {
+                await interaction.followUp({ephemeral:true,content:`An error occured: ${e.toString()}`});
+            }
+        break;
+        case 'role':
+            cmd = slash.role;
+        break;
+        case 'lifetime':
+            cmd = slash.lifetime;
+        break;
+        case 'say':
+            cmd = slash.say;
+        break;
+        case 'badrheumy':
+            cmd = slash.badrheumy;
+        break;
+        case 'crisis':
+            cmd = slash.crisis;
+        break;
+        case 'update':
+            cmd = slash.update;
+        break;
+        case 'pronoun':
+            cmd = slash.pronoun;
+        break;
+    }
+
+    if (cmd != null) {
+        cmd.command(interaction,client);
+    }
+})
+
+client.on('messageCreate',async(msg)=>{
+    if (msg.author.bot) return; // don't want to reply to itself
+    //console.log(msg.content);
+    if (msg.author.id == '141365209435471872') {
+        if (msg.content=='$prednidrone setup') {
+            if (msg.deletable) {
+                await msg.delete()
+            }
+            const guild = msg.guild;
+            if (guild) {
+                await setup(guild);
+            } else {
+                msg.channel.send('not ready yet')
             }
         }
     }
-    invite_map[invite.code] = 0;
-    fs.writeFile("./invites.json",JSON.stringify(invite_map),()=>{console.log('File written')});
-    mod_channel.send(fancy_message);
-    //res.contentType('text/plain').send(`Your request has been received. The moderation team will contact you on ${req.body.author_email} soon`);
-    res.redirect('https://sidorakh.xyz/thritis/application-received.html');
 });
-
-app.listen(3000);
-console.log('Express server set up');
-
-// Commands
-
-let global = {};
-global.cmd = {};
-global.config = config;     // role list
-global.muted = {};
-global.save_data = (fname,data)=>{
-    fs.writeFileSync(fname,JSON.stringify(data,null,4));
-}
-global.load_data = (fname)=>{
-    return JSON.parse(fs.readFileSync(fname));
-}
-if (fs.existsSync('./muted.json')) {
-    global.muted = global.load_data('./muted.json');
-}
-let files = fs.readdirSync('./cmd/');
-for (let i=0;i<files.length;i++) {
-    let file = files[i];
-    if (path.extname(file).toLowerCase() != '.js') {
-        continue;
-    } else {
-        file = file.replace('.js','');
-    }
-    global.cmd[file] = require(`./cmd/${file}`);
-    console.log(`${file}.js loaded successfully`);
-}
-client.on('ready',()=>{
-    global.guild = client.guilds.first();
-    //global.cmd.remindme.init(global.guild);
-});
-
-const welcome_member = async (member)=>{
-    let channel = member.guild.channels.find(ch => ch.name == 'general' && ch.type == 'text');
-    let welcome_message = `Hey there, <@${member.id}>! Welcome to the joint point, the point of non functional joint!\n`
-    welcome_message += `Select a role by typing \`!role number\`.\n`;
-    for (let i=0;i<config.roles.length;i++) {
-        welcome_message += `${i+1}. ${config.roles[i]}\n`;
-    }
-    welcome_message += "\nFor example  typing \`!role 1\` would give you the Osteoarthritis role";
-    channel.send(welcome_message);
-    let lemur = await member.guild.fetchMember('335117187411083275');
-    lemur.send(`${member.displayName} has joined ${member.guild.name}`);
-}
-
-client.on('guildMemberAdd',async(member)=>{
-    var guild = client.guilds.array()[0];
-    guild_invites = await guild.fetchInvites();
-    my_invite = (guild_invites.find(invite => invite.maxUses == 2 && invite.uses == 1));
-    var no_invite = true;
-    if (my_invite != null) {
-        if (invite_map[my_invite.code] != undefined) {
-            console.log('This is from one my invite links!')
-            my_invite.delete();
-            invite_map[my_invite.code] = undefined;
-            no_invite = false;
-        }
-    }
-    if (no_invite) {
-        console.log('A regular invite');
-        welcome_member(member);
-    }
-
-});
-client.on('error',console.error);
-client.on('message',async(msg)=>{
-    if (msg.content[0] != config.prefix) {
-        shallow.buzz(msg.content);
-        return;
-    }
-    let str = msg.content.substr(1);
-    let [cmd,...args] = str.split(' ');
-    cmd = cmd.toLowerCase();
-    if (global.cmd[cmd] == undefined || global.cmd[cmd].call == undefined) {
-        switch (cmd) {
-            case 'play':
-            case 'disconnect':
-            case 'skip':
-            case 'volume':
-                    msg.channel.send(await audio[cmd](client,global,msg,args));
-            break;
-            default:
-                return;
-            break;
-        }
-    } else {
-        let result = await global.cmd[cmd].call(client,global,msg,args);
-        if (result != null) {
-            msg.channel.send(result);
-        }
-    }
-    if (msg.deletable) {
-        msg.delete();
-    }
-});
-
-client.login(config.token);
-console.log('Ret-2-Go');
