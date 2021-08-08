@@ -1,6 +1,6 @@
 const discord = require('discord.js');
 const {default: firebase} = require('firebase');
-
+const slash = require('./slash');
 
 async function setup_role(/** @type {discord.Guild} */ guild) {
     const choices = [];
@@ -127,13 +127,6 @@ async function setup_badrheumy(/** @type {discord.Guild} */ guild) {
     });
 };
 
-
-
-
-//rss-test__busy__busy__busy
-
-
-
 async function setup_crisis(/** @type {discord.Guild} */ guild) {
     const command = await guild.commands.create({
         name:'crisis',
@@ -155,8 +148,6 @@ async function setup_setcommands(/** @type {discord.Guild} */ guild) {
         description: '(Admin only) Sets up or refreshes slash commands',
     });
 };
-
-
 
 async function setup_update(/** @type {discord.Guild} */ guild) {
     const command = await guild.commands.create({
@@ -300,19 +291,31 @@ async function setup_template(/** @type {discord.Guild} */ guild) {
 
 async function setup(/** @type {discord.Guild} */ guild){
     //await setup_register(guild);
-    await setup_role(guild);
-    await setup_lifetime(guild);
-    await setup_say(guild);
-    await setup_badrheumy(guild);
-    await setup_setcommands(guild);
-    await setup_crisis(guild);
-    await setup_update(guild);
-    await setup_pronoun(guild);
-    await setup_fancify(guild);
+    for (const command of Object.keys(slash)) {
+        await slash[command].setup(guild);
+    }
+    // await setup_role(guild);
+    // await setup_lifetime(guild);
+    // await setup_say(guild);
+    // await setup_badrheumy(guild);
+    // await setup_setcommands(guild);
+    // await setup_crisis(guild);
+    // await setup_update(guild);
+    // await setup_pronoun(guild);
+    // await setup_fancify(guild);
+}
+
+async function setup_command(/** @type {discord.Guild} */ guild, command) {
+    if (slash[command]) {
+        slash[command].setup(guild);
+        return true;
+    }
+    return false;
 }
 
 module.exports = {
     setup,
+    setup_command,
     role:setup_role,
     lifetime:setup_lifetime,
     say:setup_say,

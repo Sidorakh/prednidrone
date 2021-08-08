@@ -1,0 +1,27 @@
+const discord = require('discord.js');
+const {default: firebase} = require('firebase');
+
+module.exports.command = async (/** @type {discord.CommandInteraction} */ interaction, /** @type {discord.Client} */ client)=>{
+    try {
+        // always allow Sidorakh#8297 in case of fuckup
+        if (interaction.member.user.id != '141365209435471872') {
+            const {admin_role} = (await firebase.firestore().collection(process.env.COLLECTION).doc('settings').get()).data();
+            const member = await interaction.guild.members.fetch(interaction.member.user.id);
+            if (!member.roles.cache.find(role=>role.id==admin_role)) return interaction.reply({ephemeral:true,content: 'You\'re not allowed to do that!'});
+        }
+        await interaction.defer({ephemeral:true});
+        await setup(interaction.guild);
+        await interaction.editReply({ephemeral:true,content:'Commands successfully updated!',});
+    } catch(e) {
+        await interaction.followUp({ephemeral:true,content:`An error occured: ${e.toString()}`});
+    }
+}
+
+
+module.exports.setup = async function (/** @type {discord.Guild} */ guild) {
+    const command = guild.commands.create({
+        name: 'setcommands',
+        description: '(Admin only) Sets up or refreshes slash commands',
+    });
+    return command;
+};

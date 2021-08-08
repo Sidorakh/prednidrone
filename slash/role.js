@@ -1,6 +1,21 @@
 const discord = require('discord.js');
 const {default: firebase} = require('firebase');
 
+module.exports.description = {
+    name: 'role',
+    description: 'Add, remove, and list roles',
+    usage: '/role [add|remove|list] [role]',
+    parameters: [
+        {
+            name:'command',
+            description:'Whether to add a role, remove a role, or list all available roles',
+        },
+        {
+            name: 'role',
+            description: '(Optional) Role',
+        }
+    ]
+};
 
 module.exports.command = async (/** @type {discord.CommandInteraction} */ interaction, /** @type {discord.Client} */ client)=>{
     const {admin_role} = (await firebase.firestore().collection(process.env.COLLECTION).doc('settings').get()).data();
@@ -63,7 +78,7 @@ async function list(/** @type {discord.CommandInteraction} */ interaction, /** @
             role_list.push(role);
         }
     }
-    interaction.editReply({content: 'Available pronoun roles: \n' + role_list.sort((a,b)=>a.id-b.id).map((v,i)=>`${i+1}. ${v}`).join('\n') + '\nAssign a pronoun role by using the `/pronoun add` command'});
+    interaction.editReply({content: 'Available roles: \n' + role_list.sort((a,b)=>a.id-b.id).map((v,i)=>`${i+1}. ${v}`).join('\n') + '\nAssign a role by using the `/role add` command'});
 };
 
 async function register(/** @type {discord.CommandInteraction} */ interaction, /** @type {discord.Client} */ client) {
@@ -82,4 +97,86 @@ async function deregister(/** @type {discord.CommandInteraction} */ interaction,
         [role.id]: firebase.firestore.FieldValue.delete(),
     });
     interaction.editReply({content: `Role ${role} deregistered successfully`});
+}
+
+
+
+module.exports.setup = async function(/** @type {discord.Guild} */ guild) {
+    const choices = [];
+    const roles = (await firebase.firestore().collection(process.env.COLLECTION).doc('roles').get()).data();
+    for (const role_id of Object.keys(roles)) {
+        const role = guild.roles.cache.get(role_id)
+        if (role != undefined) {
+            choices.push({
+                name: role.name,
+                value: role.id
+            });
+        }
+    }
+    const command = await guild.commands.create({
+        name: 'role',
+        description: 'Assigns a given role',
+        options: [
+            {
+                name: 'add',
+                description: 'Add a role',
+                type: 'SUB_COMMAND',
+                options: [
+                    {
+                        name: 'role',
+                        description: 'Role to add',
+                        type: 'STRING',
+                        required: true,
+                        choices,
+                    },
+                ]
+            },
+            {
+                name: 'remove',
+                description: 'Remove a role',
+                type: 'SUB_COMMAND',
+                options: [
+                    {
+                        name: 'role',
+                        description: 'Role to remove',
+                        type: 'STRING',
+                        required: true,
+                        choices,
+                    },
+                ]
+            },
+            {
+                name: 'list',
+                description: 'List all self-assignable roles',
+                type: 'SUB_COMMAND'
+            },
+            {
+                name: 'register',
+                description: '(Admin only) Register a self-assignable role',
+                type: 'SUB_COMMAND',
+                options: [
+                    {
+                        name: 'role',
+                        description: 'Role to register',
+                        type: 'ROLE',
+                        required: true
+                    },
+                ]
+            },
+            {
+                name: 'deregister',
+                description: '(Admin only) De-registers a self-assignable role',
+                type: 'SUB_COMMAND',
+                options: [
+                    {
+                        name: 'role',
+                        description: 'Role to deregister',
+                        type: 'ROLE',
+                        required: true
+                    },
+                ]
+            },
+        ]
+    });
+    return command;
 }

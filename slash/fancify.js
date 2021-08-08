@@ -2,6 +2,21 @@ const discord = require('discord.js');
 const lut = require('./fancify.json');
 const {default: firebase} = require('firebase');
 
+module.exports.description = {
+    name: 'fancify',
+    description: 'Echo back text in a different text style',
+    usage: '/fancify',
+    parameters: [
+        {
+            name: 'style',
+            description: 'Style of text to write back'
+        },
+        {
+            name: 'message',
+            description: 'Text to make fancy',
+        }
+    ]
+};
 
 module.exports.command = async (/** @type {discord.CommandInteraction} */ interaction, /** @type {discord.Client} */ client)=>{
     //console.log(interaction.options);
@@ -34,3 +49,43 @@ module.exports.command = async (/** @type {discord.CommandInteraction} */ intera
 
     await interaction.channel.send({content: fancy_message,allowedMentions:{parse:[]}})
 }
+
+module.exports.setup = async function(/** @type {discord.Guild} */ guild) {
+    const command = await guild.commands.create({
+        name: 'fancify',
+        description: 'Echo back text in a different text style',
+        options: [
+            {
+                name: 'style',
+                description: 'Style of text to write back',
+                type: 'STRING',
+                required: true,
+                choices: [
+                    {
+                        name: 'Ye Olde',
+                        value: 'yeolde',
+                    },
+                    {
+                        name: 'Cursive',
+                        value: 'cursive',
+                    },
+                    {
+                        name: 'Stroke',
+                        value: 'stroke',
+                    },
+                    {
+                        name: 'Australian',
+                        value: 'australian',
+                    },
+                ],
+            },
+            {
+                name: 'message',
+                description: 'Text to make fancy',
+                type: 'STRING',
+                required: true,
+            }
+        ]
+    });
+    return command;
+};

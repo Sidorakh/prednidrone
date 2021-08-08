@@ -21,6 +21,7 @@
     "axios": "^0.21.1",
     "discord.js": "github:discordjs/discord.js",
     "dotenv": "^10.0.0",
-    "firebase": "^8.7.0"
+    "firebase": "^8.7.0",
+    "fs-extra": "^10.0.0"
   }
 }

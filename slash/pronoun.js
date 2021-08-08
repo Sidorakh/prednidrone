@@ -1,6 +1,21 @@
 const discord = require('discord.js');
 const {default: firebase} = require('firebase');
 
+module.exports.description = {
+    name: 'pronoun',
+    description: 'Add, remove, and list pronoun roles',
+    usage: '/pronoun [add|remove|list] [role]',
+    parameters: [
+        {
+            name:'command',
+            description:'Whether to add a pronoun role, remove a pronoun role, or list all pronoun roles',
+        },
+        {
+            name: 'role',
+            description: '(Optional) Role',
+        }
+    ]
+};
 
 module.exports.command = async (/** @type {discord.CommandInteraction} */ interaction, /** @type {discord.Client} */ client)=>{
     const {admin_role} = (await firebase.firestore().collection(process.env.COLLECTION).doc('settings').get()).data();
@@ -83,3 +98,83 @@ async function deregister(/** @type {discord.CommandInteraction} */ interaction,
     });
     interaction.editReply({content: `Pronoun role ${role} deregistered successfully`});
 }
+
+module.exports.setup = async function(/** @type {discord.Guild} */ guild) {
+    const choices = [];
+    const roles = (await firebase.firestore().collection(process.env.COLLECTION).doc('pronouns').get()).data();
+    for (const role_id of Object.keys(roles)) {
+        const role = guild.roles.cache.get(role_id)
+        if (role != undefined) {
+            choices.push({
+                name: role.name,
+                value: role.id
+            });
+        }
+    }
+    const command = await guild.commands.create({
+        name: 'pronoun',
+        description: 'Manages pronoun roles',
+        options: [
+            {
+                name: 'add',
+                description: 'Add a pronoun role',
+                type:'SUB_COMMAND',
+                options: [
+                    {
+                        name: 'pronoun',
+                        description: 'Pronoun role to add',
+                        type:'STRING',
+                        required: true,
+                        choices,
+                    }
+                ]
+            },
+            {
+                name: 'remove',
+                description: 'Remove a pronoun role',
+                type:'SUB_COMMAND',
+                options: [
+                    {
+                        name: 'pronoun',
+                        description: 'Pronoun role to remove',
+                        type:'STRING',
+                        required: true,
+                        choices,
+                    }
+                ]
+            },
+            {
+                name: 'list',
+                description: 'List available pronoun roles',
+                type:'SUB_COMMAND',
+            },
+            {
+                name: 'register',
+                description: '(Admin only) Register a pronoun role',
+                type:'SUB_COMMAND',
+                options: [
+                    {
+                        name: 'pronoun',
+                        description: 'Pronoun role to register',
+                        type:'ROLE',
+                        required: true,
+                    }
+                ]
+            },
+            {
+                name: 'deregister',
+                description: '(Admin only) Deregister a pronoun role',
+                type:'SUB_COMMAND',
+                options: [
+                    {
+                        name: 'pronoun',
+                        description: 'Pronoun role to deregister',
+                        type:'ROLE',
+                        required: true,
+                    }
+                ]
+            }
+        ]
+    });
+    return command;
+};

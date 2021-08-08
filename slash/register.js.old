@@ -1,6 +1,21 @@
 const discord = require('discord.js');
 const {default: firebase} = require('firebase');
 
+module.exports.description = {
+    name: 'register',
+    description: 'Add, remove, and list pronoun roles',
+    usage: '/pronoun [add|remove|list] [role]',
+    parameters: [
+        {
+            name:'command',
+            description:'Whether to add a pronoun role, remove a pronoun role, or list all pronoun roles',
+        },
+        {
+            name: 'role',
+            description: '(Optional) Role',
+        }
+    ]
+};
 
 module.exports.command = async (/** @type {discord.CommandInteraction} */ interaction, /** @type {discord.Client} */ client)=>{
     //console.log(interaction.options);

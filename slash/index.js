@@ -1,5 +1,5 @@
 module.exports = {
-    register: require('./register'),
+    //register: require('./register'),
     role: require('./role'),
     lifetime: require('./lifetime'),
     say: require('./say'),
@@ -8,4 +8,6 @@ module.exports = {
     update: require('./update'),
     pronoun: require('./pronoun'),
     fancify: require('./fancify'),
+    yt: require('./yt'),
+    help: require('./help'),
 }
