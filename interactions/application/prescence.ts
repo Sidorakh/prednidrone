@@ -4,8 +4,6 @@ import {ApplicationCommandInteraction} from '../interaction-typedefs';
 type PrescenceType = 'competing'|'custom'|'listening'|'playing'|'streaming'|'watching';
 
 export const command: ApplicationCommandInteraction = {
-    description: 'Set the bots prescence data',
-    parameters: [],
     command: new discord.SlashCommandBuilder()  .setName('prescence')
                                                 .setDescription('Set the bots prescence data')
                                                 .addStringOption(v=>v.setName('type').setDescription('Type of prescence').setRequired(true).setChoices({

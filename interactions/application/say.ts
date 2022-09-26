@@ -1,19 +1,6 @@
 import * as discord from 'discord.js';
 import {ApplicationCommandInteraction} from '../interaction-typedefs';
 export const command: ApplicationCommandInteraction = {
-    description: 'Makes the bot say words',
-    parameters: [
-        {
-            name: 'message',
-            description: 'Message to send',
-            required: true,
-        },
-        {
-            name: 'channel',
-            description: 'Channel to send message in',
-            required: false,
-        }
-    ],
     command: new discord.SlashCommandBuilder()  .setName('say')
                                                 .setDescription('Make the bot say words')
                                                 .addStringOption(v=>v.setName('message').setDescription('Message to send').setRequired(true))

@@ -1,14 +1,6 @@
 import * as discord from 'discord.js';
 import {ApplicationCommandInteraction} from '../interaction-typedefs';
 export const command: ApplicationCommandInteraction = {
-    description: 'Show when the specified user joined the server, or yourself if nobody is specified',
-    parameters: [
-        {
-            name: 'member',
-            description: 'Member to check',
-            required: false,
-        },
-    ],
     command: new discord.SlashCommandBuilder()  .setName('lifetime')
                                                 .setDescription('Show when the specified member joined the server, or yourself if nobody is specified')
                                                 .addUserOption(v=>v.setName('member').setDescription('Member to check')),

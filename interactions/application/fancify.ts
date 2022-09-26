@@ -41,9 +41,6 @@ export const command: ApplicationCommandInteraction = {
         }
         interaction.reply({content: msg.join(''),allowedMentions: {parse:[]}});
     },
-    description: 'Send fancy text',
-    parameters: [],
-
 }
 
 

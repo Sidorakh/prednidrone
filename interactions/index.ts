@@ -24,6 +24,17 @@ export async function initialise() {
     interactions.button = await import_commands('./button') as ButtonInteraction[];
     interactions.select_menu = await import_commands('./select_menu') as SelectMenuInteraction[];
     const route = discord.Routes.applicationGuildCommands(client.user!.id,GUILD_ID);
+    
+    // easy way to check all commands
+    for (const interaction of interactions.application) {
+        try {
+            interaction.command.toJSON();
+        } catch(e) {
+            console.log(`Failed to compile ${interaction.command.name}`);
+        }
+    }
+    //
+
     const application_commands = interactions.application.map(v=>v.command.toJSON());
     const message_context_menu_commands = interactions.message_context_menu.map(v=>v.command.toJSON());
     const user_context_menu_commands = interactions.user_context_menu.map(v=>v.command.toJSON());

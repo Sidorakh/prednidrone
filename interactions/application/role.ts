@@ -4,10 +4,6 @@ import firebase from '../../firebase';
 import {get_roles} from '../../bot-config';
 import {ApplicationCommandInteraction} from '../interaction-typedefs';
 export const command: ApplicationCommandInteraction = {
-    description: 'Role self-assignment',
-    parameters: [
-        
-    ],
     command: new discord.SlashCommandBuilder()  
                         .setName('role')
                         .setDescription('Assign some arthritis roles')
@@ -37,14 +33,15 @@ export const command: ApplicationCommandInteraction = {
     },
     async autocomplete(interaction: discord.AutocompleteInteraction<discord.CacheType>) {
         const roles = await get_roles();
+        const option = interaction.options.getFocused(true);
         const guild = interaction.guild;
         const member = await guild!.members.fetch(interaction.user.id);
         if (interaction.options.getSubcommand() == 'add') {
             const options = roles.filter(v=>!member.roles.cache.has(v.id));
-            interaction.respond(options.map(v=>({name:v.name,value:v.id})));
+            interaction.respond(options.map(v=>({name:v.name,value:v.id})).filter(v=>option.value.trim()=='' || v.name.toLowerCase().includes(option.value.toLowerCase())));
         } else {
             const options = roles.filter(v=>member.roles.cache.has(v.id));
-            return interaction.respond(options.map(v=>({name:v.name,value:v.id})));
+            return interaction.respond(options.map(v=>({name:v.name,value:v.id})).filter(v=>option.value.trim()=='' || v.name.toLowerCase().includes(option.value.toLowerCase())));
         }
     }
 }
