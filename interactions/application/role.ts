@@ -16,6 +16,10 @@ export const command: ApplicationCommandInteraction = {
                             v=>v.setName('remove')
                                 .setDescription('Remove a role')
                                 .addStringOption(v=>v.setName('role').setDescription('Role to remove').setAutocomplete(true).setRequired(true))
+                        )
+                        .addSubcommand(
+                            v=>v.setName('list')
+                                .setDescription('List available roles')
                         ),
     async handler(interaction: discord.ChatInputCommandInteraction<discord.CacheType>) {
         await interaction.deferReply({ephemeral:true});
@@ -24,11 +28,16 @@ export const command: ApplicationCommandInteraction = {
         if (subcommand == 'add') {
             const member = await interaction.guild!.members.fetch(interaction.user.id);
             await member.roles.add(role);
-            interaction.editReply({content: `Added role <@&${role}>`});
-        } else {
+            interaction.editReply({content: `Added role <@&${role}>`,allowedMentions:{parse:[]}});
+        }
+        if (subcommand == 'remove') {
             const member = await interaction.guild!.members.fetch(interaction.user.id);
             await member.roles.remove(role)
-            interaction.editReply({content: `Removed role <@&${role}>`});
+            await interaction.editReply({content: `Removed role <@&${role}>`,allowedMentions:{parse:[]}});
+        }
+        if (subcommand == 'list') {
+            const roles = await get_roles();
+            await interaction.editReply({content:'Available roles: \n' + roles.map(v=>` • <@&${v.id}>`).join('\n'),allowedMentions:{parse:[]}});
         }
     },
     async autocomplete(interaction: discord.AutocompleteInteraction<discord.CacheType>) {

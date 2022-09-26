@@ -14,4 +14,8 @@ client.on('ready',async()=>{
 
 client.on('interactionCreate',(interaction)=>{
     interaction_handler(interaction);
+});
+
+client.on('guildMemberAdd',(member)=>{
+    let welcome_message = `Hey there <@${member.id}>! Welcome to joint point, the point of non-functional joint. Run the /role command to see what roles you can give yourself`
 })

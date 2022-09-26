@@ -16,6 +16,10 @@ export const command: ApplicationCommandInteraction = {
                             v=>v.setName('remove')
                                 .setDescription('Remove a pronoun')
                                 .addStringOption(v=>v.setName('pronoun').setDescription('Pronoun to remove').setAutocomplete(true).setRequired(true))
+                        )
+                        .addSubcommand(
+                            v=>v.setName('list')
+                                .setDescription('List available pronouns')
                         ),
     async handler(interaction: discord.ChatInputCommandInteraction<discord.CacheType>) {
         await interaction.deferReply({ephemeral:true});
@@ -24,11 +28,16 @@ export const command: ApplicationCommandInteraction = {
         if (subcommand == 'add') {
             const member = await interaction.guild!.members.fetch(interaction.user.id);
             await member.roles.add(pronoun);
-            interaction.editReply({content: `Added pronoun <@&${pronoun}>`});
-        } else {
+            interaction.editReply({content: `Added pronoun <@&${pronoun}>`,allowedMentions:{parse:[]}});
+        }
+        if (subcommand == 'remove') {
             const member = await interaction.guild!.members.fetch(interaction.user.id);
             await member.roles.remove(pronoun)
-            interaction.editReply({content: `Removed pronoun <@&${pronoun}>`});
+            interaction.editReply({content: `Removed pronoun <@&${pronoun}>`,allowedMentions:{parse:[]}});
+        }
+        if (subcommand == 'list') {
+            const pronouns = await get_pronouns();
+            await interaction.editReply({content:'Available roles: \n' + pronouns.map(v=>` • <@&${v.id}>`).join('\n'),allowedMentions:{parse:[]}});
         }
     },
     async autocomplete(interaction: discord.AutocompleteInteraction<discord.CacheType>) {
