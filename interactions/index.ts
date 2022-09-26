@@ -23,7 +23,6 @@ export async function initialise() {
     interactions.user_context_menu = await import_commands('./user_context_menu') as UserContextMenuInteraction[];
     interactions.button = await import_commands('./button') as ButtonInteraction[];
     interactions.select_menu = await import_commands('./select_menu') as SelectMenuInteraction[];
-
     const route = discord.Routes.applicationGuildCommands(client.user!.id,GUILD_ID);
     const application_commands = interactions.application.map(v=>v.command.toJSON());
     const message_context_menu_commands = interactions.message_context_menu.map(v=>v.command.toJSON());
@@ -77,11 +76,21 @@ export async function interaction_handler(interaction: discord.Interaction<disco
     }
 }
 
+export function get_interactions() {
+    return {
+        application: [...interactions.application],
+        message_context_menu: [...interactions.message_context_menu],
+        user_context_menu: [...interactions.user_context_menu],
+    }
+}
+
 async function import_commands(directory: string) {
     const list = await fs.readdir(path.join(__dirname,directory));
     const prefix = directory;
     const out: any[] = [];
     for (const file of list) {
+        // ignore the templates
+        if (file.includes('template.ts')) continue;
         out.push((await import(path.join(__dirname,prefix,file))).command);
     }
     return out;

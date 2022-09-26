@@ -1,7 +1,7 @@
 import * as discord from 'discord.js';
 
 export interface ApplicationCommandInteraction {
-    command: Omit<discord.SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
+    command: discord.SlashCommandBuilder | discord.SlashCommandSubcommandsOnlyBuilder | Omit<discord.SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
     handler: (interaction: discord.ChatInputCommandInteraction<discord.CacheType>) => void | Promise<void>;
     autocomplete?: (interaction: discord.AutocompleteInteraction<discord.CacheType>) => void | Promise<void>;
     description: string;
