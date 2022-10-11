@@ -26,20 +26,18 @@ export const command: ApplicationCommandInteraction = {
         const subcommand = interaction.options.getSubcommand();
         const role_id = interaction.options.getString('role')!;
         if (subcommand == 'add') {
-            try {
-                await interaction.guild?.roles.fetch(role_id);
-            } catch(e) {
+            if (is_falsy(await interaction.guild!.roles.fetch(role_id))) {
                 interaction.editReply(`${role_id} is not an available role, use \`/role list\` to view available roles`);
+                return;
             }
             const member = await interaction.guild!.members.fetch(interaction.user.id);
             await member.roles.add(role_id);
             interaction.editReply({content: `Added role <@&${role_id}>`,allowedMentions:{parse:[]}});
         }
         if (subcommand == 'remove') {
-            try {
-                await interaction.guild?.roles.fetch(role_id);
-            } catch(e) {
+            if (is_falsy(await interaction.guild!.roles.fetch(role_id))) {
                 interaction.editReply(`${role_id} is not an available role, use \`/role list\` to view available roles`);
+                return;
             }
             const member = await interaction.guild!.members.fetch(interaction.user.id);
             await member.roles.remove(role_id)
@@ -63,4 +61,8 @@ export const command: ApplicationCommandInteraction = {
             return interaction.respond(options.map(v=>({name:v.name,value:v.id})).filter(v=>option.value.trim()=='' || v.name.toLowerCase().includes(option.value.toLowerCase())));
         }
     }
+}
+
+function is_falsy(val: any) {
+    if (val === undefined || val === null) return true;
 }

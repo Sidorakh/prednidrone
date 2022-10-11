@@ -26,20 +26,18 @@ export const command: ApplicationCommandInteraction = {
         const subcommand = interaction.options.getSubcommand();
         const pronoun = interaction.options.getString('pronoun')!;
         if (subcommand == 'add') {
-            try {
-                await interaction.guild?.roles.fetch(pronoun);
-            } catch(e) {
+            if (is_falsy(await interaction.guild!.roles.fetch(pronoun))) {
                 interaction.editReply(`${pronoun} is not an available pronoun, use \`/pronouns list\` to view available pronouns or ask the admins to add a new one`);
+                return;
             }
             const member = await interaction.guild!.members.fetch(interaction.user.id);
             await member.roles.add(pronoun);
             interaction.editReply({content: `Added pronoun <@&${pronoun}>`,allowedMentions:{parse:[]}});
         }
         if (subcommand == 'remove') {
-            try {
-                await interaction.guild?.roles.fetch(pronoun);
-            } catch(e) {
+            if (is_falsy(await interaction.guild!.roles.fetch(pronoun))) {
                 interaction.editReply(`${pronoun} is not an available pronoun, use \`/pronouns list\` to view available pronouns or ask the admins to add a new one`);
+                return;
             }
             const member = await interaction.guild!.members.fetch(interaction.user.id);
             await member.roles.remove(pronoun)
@@ -63,4 +61,8 @@ export const command: ApplicationCommandInteraction = {
             return interaction.respond(options.map(v=>({name:v.name,value:v.id})).filter(v=>option.value.trim()=='' || v.name.toLowerCase().includes(option.value.toLowerCase())));
         }
     }
+}
+
+function is_falsy(val: any) {
+    if (val === undefined || val === null) return true;
 }
