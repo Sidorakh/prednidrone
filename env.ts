@@ -18,3 +18,6 @@ export const FIREBSAE_STORAGE_BUCKET: string = process.env.FIREBSAE_STORAGE_BUCK
 export const FIREBASE_MESSAGING_SENDER_ID: string = process.env.FIREBASE_MESSAGING_SENDER_ID || '';
 export const FIREBASE_APP_ID: string = process.env.FIREBASE_APP_ID || '';
 export const FIREBASE_MEASUREMENT_ID: string = process.env.FIREBASE_MEASUREMENT_ID || '';
+
+// misc. bot
+export const ENVIRONMENT: 'DEV' | 'PROD' = process.env.ENVIRONMENT == 'PROD' ? 'PROD' : 'DEV';

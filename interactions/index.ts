@@ -4,6 +4,8 @@ import client from '../discord-client';
 import * as discord from 'discord.js';
 import {GUILD_ID} from '../env';
 import {ApplicationCommandInteraction,MessageContextMenuInteraction,UserContextMenuInteraction,ButtonInteraction,SelectMenuInteraction} from './interaction-typedefs';
+import { set_config } from '../bot-config';
+
 const application: ApplicationCommandInteraction[] = [];
 const message_context_menu: MessageContextMenuInteraction[] = [];
 const user_context_menu: UserContextMenuInteraction[] = [];
@@ -38,13 +40,19 @@ export async function initialise() {
     const application_commands = interactions.application.map(v=>v.command.toJSON());
     const message_context_menu_commands = interactions.message_context_menu.map(v=>v.command.toJSON());
     const user_context_menu_commands = interactions.user_context_menu.map(v=>v.command.toJSON());
-    await client.rest.put(route,{
+    const result = await client.rest.put(route,{
         body: [
             ...application_commands,
             ...message_context_menu_commands,
             ...user_context_menu_commands
         ]
-    });
+    }) as discord.APIApplicationCommand[];
+    for (const cmd of result) {
+        if (cmd.type == discord.ApplicationCommandType.ChatInput) {
+            await set_config(`commands.${cmd.name}`,cmd.id);
+        }
+    }
+    
 }
 
 export async function interaction_handler(interaction: discord.Interaction<discord.CacheType>) {
