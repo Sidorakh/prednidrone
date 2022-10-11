@@ -24,16 +24,26 @@ export const command: ApplicationCommandInteraction = {
     async handler(interaction: discord.ChatInputCommandInteraction<discord.CacheType>) {
         await interaction.deferReply({ephemeral:true});
         const subcommand = interaction.options.getSubcommand();
-        const role = interaction.options.getString('role')!;
+        const role_id = interaction.options.getString('role')!;
         if (subcommand == 'add') {
+            try {
+                await interaction.guild?.roles.fetch(role_id);
+            } catch(e) {
+                interaction.editReply(`${role_id} is not an available role, use \`/role list\` to view available roles`);
+            }
             const member = await interaction.guild!.members.fetch(interaction.user.id);
-            await member.roles.add(role);
-            interaction.editReply({content: `Added role <@&${role}>`,allowedMentions:{parse:[]}});
+            await member.roles.add(role_id);
+            interaction.editReply({content: `Added role <@&${role_id}>`,allowedMentions:{parse:[]}});
         }
         if (subcommand == 'remove') {
+            try {
+                await interaction.guild?.roles.fetch(role_id);
+            } catch(e) {
+                interaction.editReply(`${role_id} is not an available role, use \`/role list\` to view available roles`);
+            }
             const member = await interaction.guild!.members.fetch(interaction.user.id);
-            await member.roles.remove(role)
-            await interaction.editReply({content: `Removed role <@&${role}>`,allowedMentions:{parse:[]}});
+            await member.roles.remove(role_id)
+            await interaction.editReply({content: `Removed role <@&${role_id}>`,allowedMentions:{parse:[]}});
         }
         if (subcommand == 'list') {
             const roles = await get_roles();

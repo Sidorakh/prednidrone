@@ -16,8 +16,12 @@ client.on('ready',async()=>{
     console.log('Ret-2-Go!');
 });
 
-client.on('interactionCreate',(interaction)=>{
-    interaction_handler(interaction);
+client.on('interactionCreate',async (interaction)=>{
+    try {
+        await interaction_handler(interaction);
+    } catch(e) {
+        console.error(e);
+    }
 });
 
 client.on('guildMemberAdd',async(member)=>{

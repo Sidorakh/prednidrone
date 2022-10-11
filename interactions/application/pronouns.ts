@@ -26,11 +26,21 @@ export const command: ApplicationCommandInteraction = {
         const subcommand = interaction.options.getSubcommand();
         const pronoun = interaction.options.getString('pronoun')!;
         if (subcommand == 'add') {
+            try {
+                await interaction.guild?.roles.fetch(pronoun);
+            } catch(e) {
+                interaction.editReply(`${pronoun} is not an available pronoun, use \`/pronouns list\` to view available pronouns or ask the admins to add a new one`);
+            }
             const member = await interaction.guild!.members.fetch(interaction.user.id);
             await member.roles.add(pronoun);
             interaction.editReply({content: `Added pronoun <@&${pronoun}>`,allowedMentions:{parse:[]}});
         }
         if (subcommand == 'remove') {
+            try {
+                await interaction.guild?.roles.fetch(pronoun);
+            } catch(e) {
+                interaction.editReply(`${pronoun} is not an available pronoun, use \`/pronouns list\` to view available pronouns or ask the admins to add a new one`);
+            }
             const member = await interaction.guild!.members.fetch(interaction.user.id);
             await member.roles.remove(pronoun)
             interaction.editReply({content: `Removed pronoun <@&${pronoun}>`,allowedMentions:{parse:[]}});

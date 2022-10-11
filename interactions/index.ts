@@ -109,8 +109,9 @@ async function import_commands(directory: string) {
     const out: any[] = [];
     for (const file of list) {
         // ignore the templates
-        if (file.includes('template.ts')) continue;
-        out.push((await import(path.join(__dirname,prefix,file))).command);
+        if (!file.includes('template.ts')) {
+            out.push((await import(path.join(__dirname,prefix,file))).command);
+        }
     }
     return out;
 }
