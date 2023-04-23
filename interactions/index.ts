@@ -3,7 +3,7 @@ import path from 'path';
 import client from '../discord-client';
 import * as discord from 'discord.js';
 import {GUILD_ID} from '../env';
-import {ApplicationCommandInteraction,MessageContextMenuInteraction,UserContextMenuInteraction,ButtonInteraction,SelectMenuInteraction} from './interaction-typedefs';
+import {ApplicationCommandInteraction,MessageContextMenuInteraction,UserContextMenuInteraction,ButtonInteraction,SelectMenuInteraction,ModalSubmitInteraction} from './interaction-typedefs';
 import { set_config } from '../bot-config';
 
 const application: ApplicationCommandInteraction[] = [];
@@ -11,12 +11,14 @@ const message_context_menu: MessageContextMenuInteraction[] = [];
 const user_context_menu: UserContextMenuInteraction[] = [];
 const button: ButtonInteraction[] = [];
 const select_menu: SelectMenuInteraction[] = [];
+const modal_submit: ModalSubmitInteraction[] = [];
 const interactions = {
     application,
     message_context_menu,
     user_context_menu,
     button,
     select_menu,
+    modal_submit,
 }
 
 export async function initialise() {
@@ -25,6 +27,7 @@ export async function initialise() {
     interactions.user_context_menu = await import_commands('./user_context_menu') as UserContextMenuInteraction[];
     interactions.button = await import_commands('./button') as ButtonInteraction[];
     interactions.select_menu = await import_commands('./select_menu') as SelectMenuInteraction[];
+    interactions.modal_submit = await import_commands('./modal') as ModalSubmitInteraction[];
     const route = discord.Routes.applicationGuildCommands(client.user!.id,GUILD_ID);
     
     // easy way to check all commands
@@ -87,11 +90,18 @@ export async function interaction_handler(interaction: discord.Interaction<disco
             await cmd.handler(interaction);
         }
     }
-    if (interaction.isSelectMenu()) {
+    if (interaction.isStringSelectMenu()) {
         const cmd = interactions.select_menu.find(v=>v.id == interaction.customId);
         if (cmd) {
             await cmd.handler(interaction);
         }
+    }
+    if (interaction.isModalSubmit()) {
+        const cmd = interactions.modal_submit.find(v=>interaction.customId.startsWith(v.id))
+        if (cmd) {
+            await cmd.handler(interaction)
+        }
+
     }
 }
 

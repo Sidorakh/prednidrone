@@ -28,3 +28,7 @@ export interface SelectMenuInteraction {
     handler: (interaction: discord.SelectMenuInteraction<discord.CacheType>) => void | Promise<void>;
 }
 
+export interface ModalSubmitInteraction {
+    id: string,
+    handler: (interaction: discord.ModalSubmitInteraction<discord.CacheType>)=> void | Promise<void>
+}

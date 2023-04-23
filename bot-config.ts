@@ -4,7 +4,7 @@ import client from './discord-client';
 import * as discord from 'discord.js';
 
 export async function get_roles() {
-    const guild = client.guilds.cache.first()!;
+    const guild = (client.guilds.resolve('218884270884782080') || client.guilds.resolve('484606200550260737'))!;
     const collection = ENVIRONMENT == 'DEV' ? 'prednidrone-dev' : 'prednidrone'
     const doc = (await firebase.firestore().collection(collection).doc('settings').get());
     const snowflakes: string[] = doc.data()!.roles;

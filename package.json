@@ -19,7 +19,7 @@
   "homepage": "https://github.com/Sidorakh/prednidrone#readme",
   "dependencies": {
     "@types/node": "^18.7.21",
-    "discord.js": "^14.4.0",
+    "discord.js": "^14.9.0",
     "dotenv": "^16.0.2",
     "firebase": "^9.10.0",
     "fs-extra": "^10.1.0"
