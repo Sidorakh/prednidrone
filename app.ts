@@ -63,7 +63,7 @@ client.on('messageReactionRemove',message_reaction_remove);
 client.on('guildMemberAdd',async(member)=>{
     const channel_id = await get_config('general') as string;
     const command_id = (await get_config('commands') as {[key:string]: string}).role;
-    let welcome_message = `Hey there <@${member.id}>, welcome to joint point, the point of non-functional joint! Run the </role:${command_id}> command to see what arthritis roles you can give yourself`;
+    let welcome_message = `Hey there <@${member.id}>, welcome to our arthritis support commmunity! If you'd like to see what roles are available to you, run the </role list:${command_id}> command, and assign all the roles you need with </role add:${command_id}>. Feel free to join in on the chat and enjoy your stay!`;
     const channel = await client.channels.fetch(channel_id) as discord.TextBasedChannel;
     channel.send(welcome_message);
 });
