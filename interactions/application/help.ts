@@ -6,7 +6,7 @@ export const command: ApplicationCommandInteraction = {
                                                 .setDescription('List all commands or get help for a specific command')
                                                 .addStringOption(v=>v.setName('command').setDescription('What to look up').setRequired(true).setAutocomplete(true)),
     async handler(interaction: discord.ChatInputCommandInteraction<discord.CacheType>) {
-        await interaction.deferReply({ephemeral: true});
+        await interaction.deferReply({flags:[discord.MessageFlags.Ephemeral]});
         const command = interaction.options.getString('command')!;
         if (command == 'list-commands') {
             const commands = list_commands().map(v=>` • **/${v.name}** : ${v.description}`).join('\n\n');

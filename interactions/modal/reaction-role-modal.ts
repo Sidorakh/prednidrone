@@ -1,3 +1,4 @@
+/*
 import * as discord from 'discord.js';
 import {setup_reaction_roles} from '../../services/reaction-roles'
 import {ModalSubmitInteraction} from '../interaction-typedefs';
@@ -11,3 +12,4 @@ export const command: ModalSubmitInteraction = {
         await setup_reaction_roles(json,message,data_id);
     }
 }
+    */
