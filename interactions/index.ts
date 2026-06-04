@@ -52,7 +52,7 @@ export async function initialise() {
     }) as discord.APIApplicationCommand[];
     for (const cmd of result) {
         if (cmd.type == discord.ApplicationCommandType.ChatInput) {
-            await set_config(cmd.name,cmd.id);
+            //await set_config(cmd.name,cmd.id);
             await ApplicationCommand.upsert({id: cmd.id, name: cmd.name});
         }
     }
