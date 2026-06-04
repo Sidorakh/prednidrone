@@ -33,7 +33,7 @@ export async function setup_reaction_roles(json: string,message: string, id: str
     }
     const channel_id = id_channel.get(id);
     if (channel_id) {
-        const channel = await client.channels.fetch(channel_id) as discord.TextBasedChannel;
+        const channel = await client.channels.fetch(channel_id) as discord.SendableChannels;
         let str = message + '\n\n';
         for (const reaction of reaction_message.reactions) {
             const emoji = client.emojis.resolve(reaction.emoji_id);

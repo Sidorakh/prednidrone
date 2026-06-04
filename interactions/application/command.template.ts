@@ -4,6 +4,6 @@ export const command: ApplicationCommandInteraction = {
     command: new discord.SlashCommandBuilder()  .setName('slash-command')
                                                 .setDescription('a command'),
     async handler(interaction: discord.ChatInputCommandInteraction<discord.CacheType>) {
-        await interaction.deferReply({ephemeral:true});
+        await interaction.deferReply({flags:[discord.MessageFlags.Ephemeral]});
     }
 }

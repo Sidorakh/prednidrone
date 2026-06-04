@@ -24,7 +24,7 @@ export const command: ApplicationCommandInteraction = {
                                                 }))
                                                 .addStringOption(v=>v.setName('activity').setDescription('The activity').setRequired(true)),
     async handler(interaction: discord.ChatInputCommandInteraction<discord.CacheType>) {
-        await interaction.deferReply({ephemeral:true});
+        await interaction.deferReply({flags:[discord.MessageFlags.Ephemeral]});
         const type = interaction.options.getString('type')! as PrescenceType;
         const activity = interaction.options.getString('activity')!;
         let type_enum: discord.ActivityType.Playing | discord.ActivityType.Streaming | discord.ActivityType.Listening | discord.ActivityType.Watching | discord.ActivityType.Competing | undefined = discord.ActivityType.Playing;

@@ -1,7 +1,7 @@
 import * as discord from 'discord.js';
 import {MessageContextMenuInteraction} from '../interaction-typedefs';
 export const command: MessageContextMenuInteraction = {
-    description: 'Makes the bot say words',
+    description: 'MessageContextMenuCommand',
     command: new discord.ContextMenuCommandBuilder().setType(discord.ApplicationCommandType.Message)
                                                     .setName('Message'),
     async handler(interaction) {

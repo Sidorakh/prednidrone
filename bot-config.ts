@@ -2,7 +2,9 @@ import firebase from './firebase';
 import {ENVIRONMENT} from './env';
 import client from './discord-client';
 import * as discord from 'discord.js';
+import { Option } from './db';
 
+/*
 export async function get_roles() {
     const guild = (client.guilds.resolve('218884270884782080') || client.guilds.resolve('484606200550260737'))!;
     const collection = ENVIRONMENT == 'DEV' ? 'prednidrone-dev' : 'prednidrone'
@@ -18,6 +20,7 @@ export async function get_roles() {
     return roles;
 }
 
+
 export async function get_pronouns() {
     const guild = client.guilds.cache.first()!;
     const snowflakes: string[] = await get_config('pronouns');
@@ -31,6 +34,8 @@ export async function get_pronouns() {
     return roles;
 }
 
+
+
 export async function get_config(key: string) {
     const collection = ENVIRONMENT == 'DEV' ? 'prednidrone-dev' : 'prednidrone';
     const doc = (await firebase.firestore().collection(collection).doc('settings').get());
@@ -43,4 +48,14 @@ export async function set_config(key: string, value: string) {
         [key]: value,
     });
     
+}
+    */
+
+export async function get_config(key: string) {
+    const option = await Option.findByPk(key);
+    return `${option?.get().value}`;
+}
+
+export async function set_config(key: string, value: string) {
+    await Option.upsert({id:key,value});
 }

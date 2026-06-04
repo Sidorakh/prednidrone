@@ -5,7 +5,7 @@ import * as discord from 'discord.js';
 import {GUILD_ID} from '../env';
 import {ApplicationCommandInteraction,MessageContextMenuInteraction,UserContextMenuInteraction,ButtonInteraction,SelectMenuInteraction,ModalSubmitInteraction} from './interaction-typedefs';
 import { set_config } from '../bot-config';
-
+import {ApplicationCommand} from '../db';
 const application: ApplicationCommandInteraction[] = [];
 const message_context_menu: MessageContextMenuInteraction[] = [];
 const user_context_menu: UserContextMenuInteraction[] = [];
@@ -53,6 +53,7 @@ export async function initialise() {
     for (const cmd of result) {
         if (cmd.type == discord.ApplicationCommandType.ChatInput) {
             await set_config(`commands.${cmd.name}`,cmd.id);
+            await ApplicationCommand.upsert({id: cmd.id, name: cmd.name});
         }
     }
     
@@ -119,7 +120,9 @@ async function import_commands(directory: string) {
     const out: any[] = [];
     for (const file of list) {
         // ignore the templates
-        if (!file.includes('template.ts')) {
+        //console.log(file);
+        //console.log(file.includes('.template.'));
+        if (!file.includes('.template.')) {
             out.push((await import(path.join(__dirname,prefix,file))).command);
         }
     }

@@ -6,8 +6,8 @@ export const command: ApplicationCommandInteraction = {
                                                 .addStringOption(v=>v.setName('message').setDescription('Message to send').setRequired(true))
                                                 .addChannelOption(v=>v.setName('channel').setDescription('Channel to send message in').addChannelTypes(discord.ChannelType.GuildText,discord.ChannelType.PublicThread,discord.ChannelType.PrivateThread,discord.ChannelType.GuildAnnouncement,discord.ChannelType.AnnouncementThread)),
     async handler(interaction: discord.ChatInputCommandInteraction<discord.CacheType>) {
-        await interaction.deferReply({ephemeral:true});
-        const channel = (interaction.options.getChannel('channel') || interaction.channel) as discord.TextBasedChannel;
+        await interaction.deferReply({flags:[discord.MessageFlags.Ephemeral]});
+        const channel = (interaction.options.getChannel('channel') || interaction.channel) as discord.SendableChannels;
         const message = interaction.options.getString('message')!;
         await channel.send(message);
         await interaction.editReply({content: 'Message sent',allowedMentions:{parse:[]}});
