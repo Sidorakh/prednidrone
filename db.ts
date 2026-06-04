@@ -1,8 +1,14 @@
 import {Sequelize, DataTypes, Model, Optional} from 'sequelize';
 import sqlite3 from './sqlite3';
+import { ENVIRONMENT } from './env';
+import mysql from './mysql';
 
 function select_db() {
-    return sqlite3();
+    if (ENVIRONMENT == 'DEV') {
+        return sqlite3();
+    } else {
+        return mysql();
+    }
 }
 
 const sequelize = select_db();
@@ -57,5 +63,6 @@ export const ApplicationCommand = sequelize.define<Model<ApplicationCommand>>('A
         allowNull: false,
     }
 })
-
-sequelize.sync({force:false});
+export function setup_database() {
+    return sequelize.sync({force:false});
+}

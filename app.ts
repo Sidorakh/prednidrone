@@ -5,7 +5,7 @@ import {get_config} from './bot-config';
 import {initialise,interaction_handler} from './interactions';
 //import firebase, {initialise as initialise_firebase} from './firebase';
 //import {message_reaction_add,message_reaction_remove} from './services/reaction-roles';
-import { ApplicationCommand } from './db';
+import { ApplicationCommand,setup_database } from './db';
 import spam_detector from './services/spam-detector';
 import owie_reactor from './services/owie-reactor';
 
@@ -14,7 +14,7 @@ client.login(env.DISCORD_TOKEN);
 client.on('clientReady',async()=>{
     //await initialise_firebase();
     //console.log('Firebase initialised');
-
+    await setup_database();
     await initialise();
     console.log('Commands initialised');
     console.log('Ret-2-Go!');
