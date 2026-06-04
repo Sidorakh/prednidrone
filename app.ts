@@ -35,7 +35,7 @@ client.on('interactionCreate',async (interaction)=>{
 client.on('messageCreate',async(msg)=>{
     //console.log(msg.content);
 
-    await spam_detector(msg);
+    // await spam_detector(msg);
     await owie_reactor(msg);
 
     
